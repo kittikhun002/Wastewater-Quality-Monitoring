@@ -9,7 +9,7 @@ const state = {
         { id: 2, name: 'Treatment Tank B', responsible: 'Somsri Rakdee', status: 'active', loc: 'Siriraj Hospital' },
         { id: 3, name: 'Outlet Sensor', responsible: 'John Doe', status: 'maintenance', loc: 'Chula Hospital' }
     ],
-    // ข้อมูลผู้ใช้งาน (เพิ่มใหม่)
+    // ข้อมูลผู้ใช้งาน
     users: [
         { id: 1, name: 'System Admin', email: 'admin@hydro.com', role: 'admin', dept: 'IT Dept' },
         { id: 2, name: 'Somsri Operation', email: 'somsri@hydro.com', role: 'user', dept: 'Operation' },
@@ -27,6 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     try { initGaugeCharts(); } catch(e) { console.error("Gauge init error:", e); }
 });
 
+// --- Navigation & Mobile Toggle ---
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+}
+
 // --- Authentication ---
 function setRole(role) {
     state.isAdmin = (role === 'admin');
@@ -35,7 +44,7 @@ function setRole(role) {
     event.target.classList.add('active');
     
     const btnText = document.getElementById('login-btn-text');
-    btnText.textContent = state.isAdmin ? "Login" : "Login";
+    btnText.textContent = state.isAdmin ? "Login as Admin" : "Login as User";
 }
 
 function handleLogin() {
@@ -74,6 +83,14 @@ function navigate(viewId) {
     // Load data specifically for views
     if (viewId === 'devices') renderDevices();
     if (viewId === 'users') renderUsers();
+
+    // Auto-close sidebar on mobile after clicking a link
+    if (window.innerWidth <= 768) {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('active')) {
+            toggleSidebar();
+        }
+    }
 }
 
 // --- Dashboard Logic ---
@@ -348,7 +365,7 @@ function deleteDevice(id) {
     }
 }
 
-// --- User Management (Admin) [NEW] ---
+// --- User Management (Admin) ---
 function renderUsers() {
     const list = document.getElementById('user-list');
     list.innerHTML = state.users.map(u => `
