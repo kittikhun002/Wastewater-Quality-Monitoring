@@ -29,7 +29,7 @@
                     <input type="email" id="login-email" value="user@demo.com" readonly>
                 </div>
                 <button class="btn btn-primary btn-block" onclick="handleLogin()">
-                    <span id="login-btn-text">Line Login</span>
+                    <span id="login-btn-text">Login</span>
                 </button>
                 <p class="terms">By logging in, you agree to our Terms of Service.</p>
             </div>
@@ -57,10 +57,10 @@
                     <div id="admin-menu" class="hidden">
                         <div class="nav-divider">ADMINISTRATION</div>
                         <a href="#" class="nav-item" onclick="navigate('devices')">
-                            <i data-lucide="settings"></i> จัดการอุปกรณ์
+                            <i data-lucide="settings"></i> Device Manager
                         </a>
                         <a href="#" class="nav-item" onclick="navigate('users')">
-                            <i data-lucide="users"></i> จัดการผู้ใช้งาน
+                            <i data-lucide="users"></i> User Management
                         </a>
                         <a href="#" class="nav-item" onclick="navigate('logs')">
                             <i data-lucide="shield"></i> System Logs
@@ -235,7 +235,7 @@
                 <div id="devices-view" class="page-section">
                     <div class="page-header">
                         <h1>Device Manager</h1>
-                        <p>จัดการอุปกรณ์ตรวจวัดคุณภาพน้ำ</p>
+                        
                         <button class="btn btn-primary" onclick="openDeviceModal()">
                             <i data-lucide="plus"></i> เพิ่มอุปกรณ์
                         </button>
@@ -249,7 +249,7 @@
                 <div id="users-view" class="page-section">
                     <div class="page-header">
                         <h1>User Management</h1>
-                        <p>จัดการสิทธิ์ผู้ใช้งานในระบบ</p>
+                        
                         <button class="btn btn-primary" onclick="openUserModal()">
                             <i data-lucide="user-plus"></i> เพิ่มผู้ใช้งาน
                         </button>
