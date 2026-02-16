@@ -7,13 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
-        <!-- LOGIN VIEW -->
+        <div id="mobile-overlay" onclick="toggleSidebar()"></div>
+
         <section id="login-view" class="view active">
             <div class="glass-card login-card">
                 <div class="logo-box">
@@ -35,9 +38,8 @@
             </div>
         </section>
 
-        <!-- MAIN APP -->
         <section id="main-layout" class="view">
-            <aside class="sidebar glass-card">
+            <aside class="sidebar glass-card" id="sidebar">
                 <div class="sidebar-header">
                     <h2 class="gradient-text">HydroMonitor</h2>
                     <span class="version">v1.1.0</span>
@@ -53,7 +55,6 @@
                         <i data-lucide="file-plus"></i> Manual Entry
                     </a>
                     
-                    <!-- Admin Menu Group -->
                     <div id="admin-menu" class="hidden">
                         <div class="nav-divider">ADMINISTRATION</div>
                         <a href="#" class="nav-item" onclick="navigate('devices')">
@@ -75,12 +76,18 @@
             </aside>
 
             <main class="content">
-                <!-- Dashboard View -->
+                <div class="mobile-header-bar">
+                    <button id="menu-toggle" onclick="toggleSidebar()">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <span class="gradient-text" style="font-weight: 600;">HydroMonitor</span>
+                </div>
+
                 <div id="dashboard-view" class="page-section active">
                     <div class="page-header">
                         <div>
                             <h1>Dashboard</h1>
-                            <p>Real-time water quality monitoring</p>
+                            <p style="color:var(--text-muted)">Real-time water quality monitoring</p>
                         </div>
                         <div class="status-badge" id="system-status-badge">
                             <span class="dot" id="system-status-dot"></span> 
@@ -143,16 +150,15 @@
                     </div>
                 </div>
 
-                <!-- History View -->
                 <div id="history-view" class="page-section">
                     <div class="page-header">
                         <div>
                             <h1>History Analysis</h1>
-                            <p>Historical trends and data logs</p>
+                            <p style="color:var(--text-muted)">Historical trends and data logs</p>
                         </div>
                         <div class="actions">
                             <button class="btn btn-primary" onclick="exportCSV()">
-                                <i data-lucide="download"></i> Export CSV
+                                <i data-lucide="download"></i> <span style="display:none; @media(min-width:600px){display:inline}">Export</span> CSV
                             </button>
                         </div>
                     </div>
@@ -181,11 +187,12 @@
                     </div>
                 </div>
 
-                <!-- Manual Entry View -->
                 <div id="manual-view" class="page-section">
                     <div class="page-header">
-                        <h1>Manual Data Entry</h1>
-                        <p>Record physical measurements manually</p>
+                        <div>
+                            <h1>Manual Data Entry</h1>
+                            <p style="color:var(--text-muted)">Record physical measurements</p>
+                        </div>
                     </div>
                     <div class="glass-card form-card">
                         <form onsubmit="handleManualSubmit(event)">
@@ -231,35 +238,28 @@
                     </div>
                 </div>
 
-                <!-- Devices View -->
                 <div id="devices-view" class="page-section">
                     <div class="page-header">
                         <h1>Device Manager</h1>
-                        
                         <button class="btn btn-primary" onclick="openDeviceModal()">
-                            <i data-lucide="plus"></i> เพิ่มอุปกรณ์
+                            <i data-lucide="plus"></i> <span style="display:none; @media(min-width:600px){display:inline}">Add Device</span>
                         </button>
                     </div>
                     <div class="device-grid" id="device-list">
-                        <!-- Devices rendered via JS -->
-                    </div>
+                        </div>
                 </div>
 
-                <!-- NEW: Users View -->
                 <div id="users-view" class="page-section">
                     <div class="page-header">
                         <h1>User Management</h1>
-                        
                         <button class="btn btn-primary" onclick="openUserModal()">
-                            <i data-lucide="user-plus"></i> เพิ่มผู้ใช้งาน
+                            <i data-lucide="user-plus"></i> <span style="display:none; @media(min-width:600px){display:inline}">Add User</span>
                         </button>
                     </div>
                     <div class="device-grid" id="user-list">
-                        <!-- Users rendered via JS -->
-                    </div>
+                        </div>
                 </div>
 
-                <!-- Logs View -->
                 <div id="logs-view" class="page-section">
                     <div class="page-header">
                         <h1>System Logs</h1>
@@ -280,7 +280,6 @@
             </main>
         </section>
 
-        <!-- Device Modal -->
         <div id="device-modal" class="modal hidden">
             <div class="glass-card modal-content">
                 <div class="modal-header">
@@ -319,7 +318,6 @@
             </div>
         </div>
 
-        <!-- NEW: User Modal -->
         <div id="user-modal" class="modal hidden">
             <div class="glass-card modal-content">
                 <div class="modal-header">
@@ -357,8 +355,8 @@
                 </form>
             </div>
         </div>
-
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
