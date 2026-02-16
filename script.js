@@ -35,7 +35,7 @@ function setRole(role) {
     event.target.classList.add('active');
     
     const btnText = document.getElementById('login-btn-text');
-    btnText.textContent = state.isAdmin ? "Admin Login" : "Line Login";
+    btnText.textContent = state.isAdmin ? "Login" : "Login";
 }
 
 function handleLogin() {
