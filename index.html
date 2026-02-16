@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HydroMonitor - Water Quality System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- LOGIN VIEW -->
+        <section id="login-view" class="view active">
+            <div class="glass-card login-card">
+                <div class="logo-box">
+                    <i data-lucide="droplets" class="logo-icon"></i>
+                </div>
+                <h1 class="gradient-text">Welcome Back</h1>
+                <p class="subtitle">Water Quality Monitoring System</p>
+                <div class="role-switch">
+                    <button class="role-btn active" onclick="setRole('user')">User</button>
+                    <button class="role-btn" onclick="setRole('admin')">Admin</button>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="login-email" value="user@demo.com" readonly>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="handleLogin()">
+                    <span id="login-btn-text">Line Login</span>
+                </button>
+                <p class="terms">By logging in, you agree to our Terms of Service.</p>
+            </div>
+        </section>
+
+        <!-- MAIN APP -->
+        <section id="main-layout" class="view">
+            <aside class="sidebar glass-card">
+                <div class="sidebar-header">
+                    <h2 class="gradient-text">HydroMonitor</h2>
+                    <span class="version">v1.1.0</span>
+                </div>
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" onclick="navigate('dashboard')">
+                        <i data-lucide="layout-dashboard"></i> Dashboard
+                    </a>
+                    <a href="#" class="nav-item" onclick="navigate('history')">
+                        <i data-lucide="history"></i> History
+                    </a>
+                    <a href="#" class="nav-item" onclick="navigate('manual')">
+                        <i data-lucide="file-plus"></i> Manual Entry
+                    </a>
+                    
+                    <!-- Admin Menu Group -->
+                    <div id="admin-menu" class="hidden">
+                        <div class="nav-divider">ADMINISTRATION</div>
+                        <a href="#" class="nav-item" onclick="navigate('devices')">
+                            <i data-lucide="settings"></i> จัดการอุปกรณ์
+                        </a>
+                        <a href="#" class="nav-item" onclick="navigate('users')">
+                            <i data-lucide="users"></i> จัดการผู้ใช้งาน
+                        </a>
+                        <a href="#" class="nav-item" onclick="navigate('logs')">
+                            <i data-lucide="shield"></i> System Logs
+                        </a>
+                    </div>
+                </nav>
+                <div class="sidebar-footer">
+                    <button class="btn-logout" onclick="handleLogout()">
+                        <i data-lucide="log-out"></i> Logout
+                    </button>
+                </div>
+            </aside>
+
+            <main class="content">
+                <!-- Dashboard View -->
+                <div id="dashboard-view" class="page-section active">
+                    <div class="page-header">
+                        <div>
+                            <h1>Dashboard</h1>
+                            <p>Real-time water quality monitoring</p>
+                        </div>
+                        <div class="status-badge" id="system-status-badge">
+                            <span class="dot" id="system-status-dot"></span> 
+                            <span id="system-status-text">System Online</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="glass-card gauge-card">
+                            <h3>pH Level</h3>
+                            <div class="gauge-container" style="position: relative; height: 180px; width:180px; margin: 0 auto;">
+                                <canvas id="phCanvas"></canvas>
+                                <div style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                    <span class="value" id="val-ph" style="font-size: 2rem; font-weight: bold;">7.0</span>
+                                    <span class="unit" style="display:block; font-size: 0.8rem; color: #94a3b8;">pH</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card gauge-card">
+                            <h3>Dissolved Oxygen</h3>
+                            <div class="gauge-container" style="position: relative; height: 180px; width:180px; margin: 0 auto;">
+                                <canvas id="doCanvas"></canvas>
+                                <div style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                    <span class="value" id="val-do" style="font-size: 2rem; font-weight: bold;">8.5</span>
+                                    <span class="unit" style="display:block; font-size: 0.8rem; color: #94a3b8;">mg/L</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card params-card">
+                            <h3><i data-lucide="activity"></i> Other Parameters</h3>
+                            <div class="params-grid">
+                                <div class="param-box">
+                                    <span class="label">SS/TSS</span>
+                                    <span class="val" id="val-ss">25</span> mg/L
+                                </div>
+                                <div class="param-box">
+                                    <span class="label">Nitrite</span>
+                                    <span class="val" id="val-nitrite">0.5</span> mg/L
+                                </div>
+                                <div class="param-box">
+                                    <span class="label">Nitrate</span>
+                                    <span class="val" id="val-nitrate">12</span> mg/L
+                                </div>
+                                <div class="param-box">
+                                    <span class="label">Phosphate</span>
+                                    <span class="val" id="val-phosphate">2.1</span> mg/L
+                                </div>
+                                <div class="param-box">
+                                    <span class="label">Water In</span>
+                                    <span class="val" id="val-level-in">80</span> cm
+                                </div>
+                                <div class="param-box">
+                                    <span class="label">Water Out</span>
+                                    <span class="val" id="val-level-out">75</span> cm
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History View -->
+                <div id="history-view" class="page-section">
+                    <div class="page-header">
+                        <div>
+                            <h1>History Analysis</h1>
+                            <p>Historical trends and data logs</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="exportCSV()">
+                                <i data-lucide="download"></i> Export CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="glass-card chart-card">
+                        <canvas id="historyChart"></canvas>
+                    </div>
+                    <div class="glass-card table-card">
+                        <h3>Data Logs</h3>
+                        <div class="table-responsive">
+                            <table id="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>pH</th>
+                                        <th>DO</th>
+                                        <th>SS</th>
+                                        <th>Nitrite</th>
+                                        <th>Nitrate</th>
+                                        <th>Phos.</th>
+                                        <th>Level (In/Out)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Entry View -->
+                <div id="manual-view" class="page-section">
+                    <div class="page-header">
+                        <h1>Manual Data Entry</h1>
+                        <p>Record physical measurements manually</p>
+                    </div>
+                    <div class="glass-card form-card">
+                        <form onsubmit="handleManualSubmit(event)">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>pH Level (0-14)</label>
+                                    <input type="number" step="0.01" required placeholder="7.0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Dissolved Oxygen (mg/L)</label>
+                                    <input type="number" step="0.01" required placeholder="8.0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Suspended Solids (mg/L)</label>
+                                    <input type="number" step="0.01" required placeholder="20.0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nitrite (mg/L)</label>
+                                    <input type="number" step="0.001" required placeholder="0.5">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nitrate (mg/L)</label>
+                                    <input type="number" step="0.01" required placeholder="10.0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phosphate (mg/L)</label>
+                                    <input type="number" step="0.01" required placeholder="2.0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Water Level In (cm)</label>
+                                    <input type="number" step="0.1" required placeholder="100">
+                                </div>
+                                <div class="form-group">
+                                    <label>Water Level Out (cm)</label>
+                                    <input type="number" step="0.1" required placeholder="95">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="reset" class="btn btn-ghost">Reset</button>
+                                <button type="submit" class="btn btn-primary">Save Record</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Devices View -->
+                <div id="devices-view" class="page-section">
+                    <div class="page-header">
+                        <h1>Device Manager</h1>
+                        <p>จัดการอุปกรณ์ตรวจวัดคุณภาพน้ำ</p>
+                        <button class="btn btn-primary" onclick="openDeviceModal()">
+                            <i data-lucide="plus"></i> เพิ่มอุปกรณ์
+                        </button>
+                    </div>
+                    <div class="device-grid" id="device-list">
+                        <!-- Devices rendered via JS -->
+                    </div>
+                </div>
+
+                <!-- NEW: Users View -->
+                <div id="users-view" class="page-section">
+                    <div class="page-header">
+                        <h1>User Management</h1>
+                        <p>จัดการสิทธิ์ผู้ใช้งานในระบบ</p>
+                        <button class="btn btn-primary" onclick="openUserModal()">
+                            <i data-lucide="user-plus"></i> เพิ่มผู้ใช้งาน
+                        </button>
+                    </div>
+                    <div class="device-grid" id="user-list">
+                        <!-- Users rendered via JS -->
+                    </div>
+                </div>
+
+                <!-- Logs View -->
+                <div id="logs-view" class="page-section">
+                    <div class="page-header">
+                        <h1>System Logs</h1>
+                    </div>
+                    <div class="glass-card">
+                        <ul class="log-list">
+                            <li class="log-item">
+                                <span class="time">10:45 AM</span>
+                                <span>User <strong>Admin</strong> updated device <em>Plant A</em>.</span>
+                            </li>
+                            <li class="log-item">
+                                <span class="time">09:30 AM</span>
+                                <span>System backup completed successfully.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </main>
+        </section>
+
+        <!-- Device Modal -->
+        <div id="device-modal" class="modal hidden">
+            <div class="glass-card modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Add Device</h3>
+                    <button class="close-btn" onclick="closeDeviceModal()"><i data-lucide="x"></i></button>
+                </div>
+                <form id="device-form" onsubmit="handleDeviceSubmit(event)">
+                    <input type="hidden" id="dev-id">
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                        <div class="form-group">
+                            <label>ชื่ออุปกรณ์</label>
+                            <input type="text" id="dev-name" required class="glass-input">
+                        </div>
+                        <div class="form-group">
+                            <label>สถานที่ติดตั้ง</label>
+                            <input type="text" id="dev-hos" required class="glass-input">
+                        </div>
+                        <div class="form-group">
+                            <label>ผู้รับผิดชอบ</label>
+                            <input type="text" id="dev-person" required class="glass-input">
+                        </div>
+                        <div class="form-group">
+                            <label>สถานะ</label>
+                            <select id="dev-status" class="glass-input">
+                                <option value="active">Active (ใช้งานปกติ)</option>
+                                <option value="maintenance">Maintenance (ซ่อมบำรุง)</option>
+                                <option value="offline">Offline (ปิดใช้งาน)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-ghost" onclick="closeDeviceModal()">ยกเลิก</button>
+                        <button type="submit" class="btn btn-primary">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- NEW: User Modal -->
+        <div id="user-modal" class="modal hidden">
+            <div class="glass-card modal-content">
+                <div class="modal-header">
+                    <h3 id="user-modal-title">เพิ่มผู้ใช้งาน</h3>
+                    <button class="close-btn" onclick="closeUserModal()"><i data-lucide="x"></i></button>
+                </div>
+                <form id="user-form" onsubmit="handleUserSubmit(event)">
+                    <input type="hidden" id="user-id">
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                        <div class="form-group">
+                            <label>ชื่อ - นามสกุล</label>
+                            <input type="text" id="user-name" required class="glass-input" placeholder="เช่น สมชาย ใจดี">
+                        </div>
+                        <div class="form-group">
+                            <label>อีเมล (Login ID)</label>
+                            <input type="email" id="user-email" required class="glass-input" placeholder="user@domain.com">
+                        </div>
+                        <div class="form-group">
+                            <label>แผนก/ตำแหน่ง</label>
+                            <input type="text" id="user-dept" required class="glass-input" placeholder="เช่น แผนกซ่อมบำรุง">
+                        </div>
+                        <div class="form-group">
+                            <label>สิทธิ์การใช้งาน (Role)</label>
+                            <select id="user-role" class="glass-input">
+                                <option value="admin">Admin (ผู้ดูแลระบบ)</option>
+                                <option value="user">User (ผู้ใช้ทั่วไป)</option>
+                                <option value="viewer">Viewer (ดูได้อย่างเดียว)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-ghost" onclick="closeUserModal()">ยกเลิก</button>
+                        <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
