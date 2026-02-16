@@ -23,15 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     generateHistory();
     initHistoryChart();
-    // Wrap in try-catch to prevent crash if elements missing
     try { initGaugeCharts(); } catch(e) { console.error("Gauge init error:", e); }
 });
 
-// --- Navigation & Mobile Toggle ---
+// --- Responsive Sidebar Logic ---
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    
+    const overlay = document.getElementById('mobile-overlay');
     sidebar.classList.toggle('active');
     overlay.classList.toggle('active');
 }
@@ -39,22 +37,19 @@ function toggleSidebar() {
 // --- Authentication ---
 function setRole(role) {
     state.isAdmin = (role === 'admin');
-    // Toggle active class visually
     document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
     
     const btnText = document.getElementById('login-btn-text');
-    btnText.textContent = state.isAdmin ? "Login as Admin" : "Login as User";
+    btnText.textContent = state.isAdmin ? "Login" : "Login";
 }
 
 function handleLogin() {
-    // Default to User if not set
     if (!state.user) state.user = state.isAdmin ? 'admin' : 'user';
     
     document.getElementById('login-view').classList.remove('active');
     document.getElementById('main-layout').classList.add('active');
     
-    // Setup UI based on role
     if (state.isAdmin) {
         document.getElementById('admin-menu').classList.remove('hidden');
     } else {
@@ -80,22 +75,18 @@ function navigate(viewId) {
     const navLink = document.querySelector(`.nav-item[onclick="navigate('${viewId}')"]`);
     if (navLink) navLink.classList.add('active');
     
-    // Load data specifically for views
+    // Auto close sidebar on mobile when navigating
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('active');
+        document.getElementById('mobile-overlay').classList.remove('active');
+    }
+
     if (viewId === 'devices') renderDevices();
     if (viewId === 'users') renderUsers();
-
-    // Auto-close sidebar on mobile after clicking a link
-    if (window.innerWidth <= 768) {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar.classList.contains('active')) {
-            toggleSidebar();
-        }
-    }
 }
 
 // --- Dashboard Logic ---
 function initGaugeCharts() {
-    // pH Gauge
     const phEl = document.getElementById('phCanvas');
     if(phEl) {
         const ctxPh = phEl.getContext('2d');
@@ -104,7 +95,7 @@ function initGaugeCharts() {
             data: {
                 labels: ['Value', 'Remaining'],
                 datasets: [{
-                    data: [7, 7], // 0-14 scale
+                    data: [7, 7],
                     backgroundColor: ['#38bdf8', 'rgba(255,255,255,0.05)'],
                     borderWidth: 0,
                     borderRadius: 10,
@@ -121,7 +112,6 @@ function initGaugeCharts() {
         });
     }
 
-    // DO Gauge
     const doEl = document.getElementById('doCanvas');
     if(doEl) {
         const ctxDo = doEl.getContext('2d');
@@ -130,7 +120,7 @@ function initGaugeCharts() {
             data: {
                 labels: ['Value', 'Remaining'],
                 datasets: [{
-                    data: [8.5, 6.5], // 0-15 scale
+                    data: [8.5, 6.5],
                     backgroundColor: ['#2dd4bf', 'rgba(255,255,255,0.05)'],
                     borderWidth: 0,
                     borderRadius: 10,
@@ -150,18 +140,15 @@ function initGaugeCharts() {
 
 function startDashboardUpdates() {
     setInterval(() => {
-        // Sim Data
         const ph = (7.0 + (Math.random() * 1.0 - 0.5)).toFixed(2);
         const doVal = (8.0 + (Math.random() * 2.0 - 1.0)).toFixed(2);
         
-        // Update Text
         const phTxt = document.getElementById('val-ph');
         if(phTxt) phTxt.textContent = ph;
         
         const doTxt = document.getElementById('val-do');
         if(doTxt) doTxt.textContent = doVal;
         
-        // Update Charts
         if (state.gauges.ph) {
             state.gauges.ph.data.datasets[0].data = [ph, 14 - ph];
             state.gauges.ph.data.datasets[0].backgroundColor[0] = ph < 6 || ph > 8.5 ? '#f87171' : '#38bdf8';
@@ -173,14 +160,12 @@ function startDashboardUpdates() {
             state.gauges.do.update();
         }
 
-        // Status Logic
         const badge = document.getElementById('system-status-badge');
         const dot = document.getElementById('system-status-dot');
         const statusText = document.getElementById('system-status-text');
 
         if(badge && dot && statusText) {
             if (ph < 5 || ph > 9 || doVal < 3) {
-                // Critical
                 dot.style.color = '#f87171';
                 dot.style.boxShadow = '0 0 8px #f87171';
                 statusText.textContent = "CRITICAL ALERT";
@@ -188,7 +173,6 @@ function startDashboardUpdates() {
                 badge.style.borderColor = "#f87171";
                 badge.style.background = "rgba(248, 113, 113, 0.1)";
             } else if (ph < 6 || ph > 8.5 || doVal < 5) {
-                // Warning
                 dot.style.color = '#facc15';
                 dot.style.boxShadow = '0 0 8px #facc15';
                 statusText.textContent = "WARNING";
@@ -196,7 +180,6 @@ function startDashboardUpdates() {
                 badge.style.borderColor = "#facc15";
                 badge.style.background = "rgba(250, 204, 21, 0.1)";
             } else {
-                // Normal
                 dot.style.color = '#4ade80';
                 dot.style.boxShadow = '0 0 8px #4ade80';
                 statusText.textContent = "System Online";
@@ -210,7 +193,6 @@ function startDashboardUpdates() {
 }
 
 // --- History & Chart ---
-let chartInstance;
 function generateHistory() {
     const data = [];
     const now = new Date();
@@ -235,7 +217,7 @@ function generateHistory() {
 
 function initHistoryChart() {
     const ctx = document.getElementById('historyChart').getContext('2d');
-    chartInstance = new Chart(ctx, {
+    new Chart(ctx, {
         type: 'line',
         data: {
             labels: state.historyData.map(d => d.date),
@@ -286,7 +268,7 @@ function exportCSV() {
     a.click();
 }
 
-// --- Device Management (Admin) ---
+// --- Device Management ---
 function renderDevices() {
     const list = document.getElementById('device-list');
     list.innerHTML = state.devices.map(d => `
@@ -311,7 +293,6 @@ function openDeviceModal(id = null) {
     modal.classList.remove('hidden');
     
     if (id) {
-        // Edit Mode
         const dev = state.devices.find(d => d.id === id);
         document.getElementById('modal-title').textContent = 'แก้ไขอุปกรณ์';
         document.getElementById('dev-id').value = dev.id;
@@ -320,7 +301,6 @@ function openDeviceModal(id = null) {
         document.getElementById('dev-hos').value = dev.loc;
         document.getElementById('dev-status').value = dev.status;
     } else {
-        // Add Mode
         document.getElementById('modal-title').textContent = 'เพิ่มอุปกรณ์ใหม่';
         document.getElementById('device-form').reset();
         document.getElementById('dev-id').value = '';
@@ -340,13 +320,11 @@ function handleDeviceSubmit(e) {
     const status = document.getElementById('dev-status').value;
     
     if (id) {
-        // Update
         const idx = state.devices.findIndex(d => d.id == id);
         if (idx !== -1) {
             state.devices[idx] = { ...state.devices[idx], name, responsible: person, loc: hos, status };
         }
     } else {
-        // Create
         const newId = state.devices.length ? Math.max(...state.devices.map(d => d.id)) + 1 : 1;
         state.devices.push({ id: newId, name, responsible: person, loc: hos, status });
     }
@@ -365,14 +343,14 @@ function deleteDevice(id) {
     }
 }
 
-// --- User Management (Admin) ---
+// --- User Management ---
 function renderUsers() {
     const list = document.getElementById('user-list');
     list.innerHTML = state.users.map(u => `
         <div class="glass-card device-card">
             <div class="user-role role-${u.role}">${u.role.toUpperCase()}</div>
             <h3>${u.name}</h3>
-            <p style="color:var(--text-muted); font-size:14px; margin-bottom:10px;">${u.email}</p>
+            <p style="color:var(--text-muted); font-size:14px; margin-bottom:10px; overflow-wrap:anywhere;">${u.email}</p>
             <div style="font-size:13px; color:#fff; background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:4px; display:inline-block;">
                 ${u.dept}
             </div>
@@ -392,7 +370,6 @@ function openUserModal(id = null) {
     modal.classList.remove('hidden');
     
     if (id) {
-        // Edit Mode
         const user = state.users.find(u => u.id === id);
         document.getElementById('user-modal-title').textContent = 'แก้ไขผู้ใช้งาน';
         document.getElementById('user-id').value = user.id;
@@ -401,7 +378,6 @@ function openUserModal(id = null) {
         document.getElementById('user-dept').value = user.dept;
         document.getElementById('user-role').value = user.role;
     } else {
-        // Add Mode
         document.getElementById('user-modal-title').textContent = 'เพิ่มผู้ใช้งานใหม่';
         document.getElementById('user-form').reset();
         document.getElementById('user-id').value = '';
@@ -421,13 +397,11 @@ function handleUserSubmit(e) {
     const role = document.getElementById('user-role').value;
     
     if (id) {
-        // Update
         const idx = state.users.findIndex(u => u.id == id);
         if (idx !== -1) {
             state.users[idx] = { ...state.users[idx], name, email, dept, role };
         }
     } else {
-        // Create
         const newId = state.users.length ? Math.max(...state.users.map(u => u.id)) + 1 : 1;
         state.users.push({ id: newId, name, email, dept, role });
     }
@@ -446,7 +420,6 @@ function deleteUser(id) {
     }
 }
 
-// Helper: Logging
 function addLog(message) {
     const logList = document.querySelector('.log-list');
     if(logList) {
@@ -458,7 +431,6 @@ function addLog(message) {
     }
 }
 
-// --- Manual Entry ---
 function handleManualSubmit(e) {
     e.preventDefault();
     alert('Data saved successfully!');
