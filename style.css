@@ -58,6 +58,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    justify-content: center;
 }
 
 .btn-primary {
@@ -80,21 +81,6 @@ body {
 .btn-ghost:hover {
     background: rgba(255, 255, 255, 0.05);
     color: #fff;
-}
-
-.btn-line {
-    background-color: #06C755;
-    color: white;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-}
-
-.btn-line:hover {
-    background-color: #05b34c;
-    box-shadow: 0 4px 15px rgba(6, 199, 85, 0.4);
 }
 
 input,
@@ -121,7 +107,7 @@ option {
 .view {
     display: none;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .view.active {
@@ -132,6 +118,7 @@ option {
 #login-view {
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
 
 .login-card {
@@ -186,7 +173,6 @@ option {
 
 .btn-block {
     width: 100%;
-    justify-content: center;
 }
 
 .terms {
@@ -206,12 +192,17 @@ option {
     border-right: 1px solid var(--glass-border);
     display: flex;
     flex-direction: column;
-    z-index: 10;
+    z-index: 50; /* Higher Z-index for mobile overlay */
+    background-color: var(--bg-dark); /* Ensure opacity on mobile */
+    transition: transform 0.3s ease-in-out;
 }
 
 .sidebar-header {
     padding: 24px;
     border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .version {
@@ -228,6 +219,7 @@ option {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    overflow-y: auto;
 }
 
 .nav-item {
@@ -279,17 +271,62 @@ option {
     background: rgba(248, 113, 113, 0.1);
 }
 
+/* Mobile Menu Toggle */
+.mobile-menu-btn {
+    display: none; /* Hidden on desktop */
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 40;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    color: var(--primary);
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.mobile-close-btn {
+    display: none; /* Hidden on desktop */
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+/* Overlay for mobile */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 45;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
 .content {
     margin-left: 260px;
     padding: 40px;
-    width: 100%;
-    overflow-y: auto;
-    height: 100vh;
+    width: calc(100% - 260px);
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
 }
 
 .page-section {
     display: none;
     animation: fadeIn 0.4s ease;
+    padding-bottom: 40px;
 }
 
 .page-section.active {
@@ -311,8 +348,10 @@ option {
 .page-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start; /* Better alignment for wrapping */
     margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 16px;
 }
 
 .status-badge {
@@ -325,6 +364,7 @@ option {
     border-radius: 20px;
     font-size: 12px;
     border: 1px solid rgba(74, 222, 128, 0.3);
+    white-space: nowrap;
 }
 
 .dot {
@@ -375,17 +415,19 @@ option {
 .chart-card {
     height: 400px;
     margin-bottom: 24px;
+    position: relative;
 }
 
 .table-responsive {
     overflow-x: auto;
     margin-top: 16px;
+    -webkit-overflow-scrolling: touch;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    min-width: 600px; /* Forces scroll on small screens */
 }
 
 th {
@@ -394,12 +436,14 @@ th {
     color: var(--text-muted);
     font-weight: 500;
     border-bottom: 1px solid var(--glass-border);
+    white-space: nowrap;
 }
 
 td {
     padding: 16px;
     border-bottom: 1px solid var(--glass-border);
     font-size: 14px;
+    white-space: nowrap;
 }
 
 tr:hover {
@@ -449,7 +493,7 @@ tr:hover {
     background: rgba(255, 255, 255, 0.08);
 }
 
-.device-status {
+.device-status, .user-role {
     position: absolute;
     top: 24px;
     right: 24px;
@@ -460,56 +504,16 @@ tr:hover {
     text-transform: uppercase;
 }
 
-.status-active {
-    background: rgba(74, 222, 128, 0.2);
-    color: #4ade80;
-}
+.status-active { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+.status-maintenance { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+.status-offline { background: rgba(248, 113, 113, 0.2); color: #f87171; }
 
-.status-maintenance {
-    background: rgba(251, 191, 36, 0.2);
-    color: #fbbf24;
-}
-
-.status-offline {
-    background: rgba(248, 113, 113, 0.2);
-    color: #f87171;
-}
-
-/* User Role Badges (New) */
-.user-role {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.role-admin {
-    background: rgba(244, 114, 182, 0.2);
-    color: #f472b6;
-    border: 1px solid rgba(244, 114, 182, 0.3);
-}
-
-.role-user {
-    background: rgba(56, 189, 248, 0.2);
-    color: #38bdf8;
-    border: 1px solid rgba(56, 189, 248, 0.3);
-}
-
-.role-viewer {
-    background: rgba(148, 163, 184, 0.2);
-    color: #94a3b8;
-}
-
+.role-admin { background: rgba(244, 114, 182, 0.2); color: #f472b6; border: 1px solid rgba(244, 114, 182, 0.3); }
+.role-user { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+.role-viewer { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
 
 /* Logs */
-.log-list {
-    list-style: none;
-}
-
+.log-list { list-style: none; }
 .log-item {
     display: flex;
     gap: 20px;
@@ -517,11 +521,7 @@ tr:hover {
     border-bottom: 1px solid var(--glass-border);
     font-size: 14px;
 }
-
-.log-item .time {
-    color: var(--text-muted);
-    font-family: monospace;
-}
+.log-item .time { color: var(--text-muted); font-family: monospace; min-width: 70px; }
 
 /* Modal */
 .modal {
@@ -539,21 +539,17 @@ tr:hover {
     opacity: 0;
     pointer-events: none;
     transition: 0.3s;
+    padding: 20px; /* Prevent touching edges on mobile */
 }
 
-.modal.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.modal:not(.hidden) {
-    opacity: 1;
-    pointer-events: auto;
-}
+.modal.hidden { opacity: 0; pointer-events: none; }
+.modal:not(.hidden) { opacity: 1; pointer-events: auto; }
 
 .modal-content {
     width: 500px;
-    max-width: 90%;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal-header {
@@ -563,16 +559,8 @@ tr:hover {
     margin-bottom: 24px;
 }
 
-.close-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-}
-
-.close-btn:hover {
-    color: #fff;
-}
+.close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; }
+.close-btn:hover { color: #fff; }
 
 .glass-input {
     width: 100%;
@@ -589,4 +577,66 @@ tr:hover {
     justify-content: flex-end;
     gap: 12px;
     margin-top: 24px;
+}
+
+/* --- RESPONSIVE MOBILE STYLES --- */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .mobile-close-btn {
+        display: block;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .content {
+        margin-left: 0;
+        width: 100%;
+        padding: 24px;
+        padding-top: 80px; /* Space for the menu button */
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .status-badge {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr; /* Stack inputs */
+    }
+
+    .params-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gauge-container {
+        width: 160px !important;
+        height: 160px !important;
+    }
+
+    .modal-content {
+        width: 100%;
+    }
+    
+    .log-item {
+        flex-direction: column;
+        gap: 8px;
+    }
 }
