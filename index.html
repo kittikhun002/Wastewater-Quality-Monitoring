@@ -15,6 +15,7 @@
 </head>
 <body>
     <div id="app">
+        <button id="lang-toggle" class="lang-toggle" onclick="toggleLanguage()">TH</button>
         <div id="mobile-overlay" onclick="toggleSidebar()"></div>
 
         <section id="login-view" class="view active">
@@ -22,19 +23,40 @@
                 <div class="logo-box">
                     <i data-lucide="droplets" class="logo-icon"></i>
                 </div>
-                <h1 class="gradient-text">Welcome Back</h1>
-                <p class="subtitle">Water Quality Monitoring System</p>
-                <div class="role-switch">
-                    <button class="role-btn active" onclick="setRole('user')">User</button>
-                    <button class="role-btn" onclick="setRole('admin')">Admin</button>
-                </div>
-                <div class="input-group">
-                    <input type="email" id="login-email" value="user@demo.com" readonly>
-                </div>
+                <h1 class="gradient-text" data-i18n="login.welcome">Welcome Back</h1>
+                
+                <p class="subtitle" data-i18n="login.subtitle">
+    Wastewater Quality Monitoring System<br>
+    Pranangklao Hospital Treatment System Prototype
+</p>
+
+<div class="input-group">
+    <label style="display:block; text-align:left; margin-bottom:6px; font-size:14px; color:#94a3b8;" data-i18n="login.name">
+        Name
+    </label>
+    <input type="text" id="login-name" placeholder="Enter your name" data-i18n-placeholder="login.namePlaceholder" required>
+</div>
+
+<div class="input-group">
+    <label style="display:block; text-align:left; margin-bottom:6px; font-size:14px; color:#94a3b8;" data-i18n="login.phone">
+        Phone
+    </label>
+    <input type="tel" id="login-phone" placeholder="Enter your phone number" data-i18n-placeholder="login.phonePlaceholder" required>
+</div>
+
+<div class="input-group">
+    <label style="display:block; text-align:left; margin-bottom:6px; font-size:14px; color:#94a3b8;" data-i18n="login.hospital">
+        Hospital
+    </label>
+    <select id="login-hospital" required>
+        <option value="" selected disabled data-i18n="login.selectHospital">Select hospital</option>
+        <option value="pranangklao" data-i18n="login.hospitalPranangklao">Pranangklao Hospital</option>
+    </select>
+</div>
                 <button class="btn btn-primary btn-block" onclick="handleLogin()">
-                    <span id="login-btn-text">Login</span>
+                    <span id="login-btn-text" data-i18n="login.button">Login</span>
                 </button>
-                <p class="terms">By logging in, you agree to our Terms of Service.</p>
+                <p class="terms" data-i18n="login.adminHint">Admin Login: Name = admin, Phone = admin</p>
             </div>
         </section>
 
@@ -46,31 +68,31 @@
                 </div>
                 <nav class="sidebar-nav">
                     <a href="#" class="nav-item active" onclick="navigate('dashboard')">
-                        <i data-lucide="layout-dashboard"></i> Dashboard
+                        <i data-lucide="layout-dashboard"></i> <span data-i18n="nav.dashboard">Dashboard</span>
                     </a>
                     <a href="#" class="nav-item" onclick="navigate('history')">
-                        <i data-lucide="history"></i> History
+                        <i data-lucide="history"></i> <span data-i18n="nav.history">History</span>
                     </a>
                     <a href="#" class="nav-item" onclick="navigate('manual')">
-                        <i data-lucide="file-plus"></i> Manual Entry
+                        <i data-lucide="file-plus"></i> <span data-i18n="nav.manual">Manual Entry</span>
                     </a>
                     
                     <div id="admin-menu" class="hidden">
-                        <div class="nav-divider">ADMINISTRATION</div>
+                        <div class="nav-divider" data-i18n="nav.adminSection">ADMINISTRATION</div>
                         <a href="#" class="nav-item" onclick="navigate('devices')">
-                            <i data-lucide="settings"></i> Device Manager
+                            <i data-lucide="settings"></i> <span data-i18n="nav.devices">Device Manager</span>
                         </a>
                         <a href="#" class="nav-item" onclick="navigate('users')">
-                            <i data-lucide="users"></i> User Management
+                            <i data-lucide="users"></i> <span data-i18n="nav.users">User Management</span>
                         </a>
                         <a href="#" class="nav-item" onclick="navigate('logs')">
-                            <i data-lucide="shield"></i> System Logs
+                            <i data-lucide="shield"></i> <span data-i18n="nav.logs">System Logs</span>
                         </a>
                     </div>
                 </nav>
                 <div class="sidebar-footer">
                     <button class="btn-logout" onclick="handleLogout()">
-                        <i data-lucide="log-out"></i> Logout
+                        <i data-lucide="log-out"></i> <span data-i18n="nav.logout">Logout</span>
                     </button>
                 </div>
             </aside>
@@ -86,8 +108,8 @@
                 <div id="dashboard-view" class="page-section active">
                     <div class="page-header">
                         <div>
-                            <h1>Dashboard</h1>
-                            <p style="color:var(--text-muted)">Real-time water quality monitoring</p>
+                            <h1 data-i18n="dashboard.title">Dashboard</h1>
+                            <p style="color:var(--text-muted)" data-i18n="dashboard.subtitle">Real-time water quality monitoring</p>
                         </div>
                         <div class="status-badge" id="system-status-badge">
                             <span class="dot" id="system-status-dot"></span> 
@@ -153,8 +175,8 @@
                 <div id="history-view" class="page-section">
                     <div class="page-header">
                         <div>
-                            <h1>History Analysis</h1>
-                            <p style="color:var(--text-muted)">Historical trends and data logs</p>
+                            <h1 data-i18n="history.title">History Analysis</h1>
+                            <p style="color:var(--text-muted)" data-i18n="history.subtitle">Historical trends and data logs</p>
                         </div>
                         <div class="actions">
                             <button class="btn btn-primary" onclick="exportCSV()">
@@ -190,49 +212,73 @@
                 <div id="manual-view" class="page-section">
                     <div class="page-header">
                         <div>
-                            <h1>Manual Data Entry</h1>
-                            <p style="color:var(--text-muted)">Record physical measurements</p>
+                            <h1 data-i18n="manual.title">Manual Data Entry</h1>
+                            <p style="color:var(--text-muted)" data-i18n="manual.subtitle">Record physical measurements</p>
                         </div>
                     </div>
                     <div class="glass-card form-card">
-                        <form onsubmit="handleManualSubmit(event)">
+                        <form id="manual-form" onsubmit="handleManualSubmit(event)">
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label>pH Level (0-14)</label>
-                                    <input type="number" step="0.01" required placeholder="7.0">
+                                    <div class="form-label-row">
+                                        <label for="manual-ph" data-i18n="manual.ph">pH Level (0-14)</label>
+                                        <label class="save-toggle"><input type="checkbox" id="save-ph" checked> <span data-i18n="manual.save">Save</span></label>
+                                    </div>
+                                    <input type="number" id="manual-ph" step="0.01" min="0" max="14" placeholder="7.0">
                                 </div>
                                 <div class="form-group">
-                                    <label>Dissolved Oxygen (mg/L)</label>
-                                    <input type="number" step="0.01" required placeholder="8.0">
+                                    <div class="form-label-row">
+                                        <label for="manual-do" data-i18n="manual.do">Dissolved Oxygen (mg/L)</label>
+                                        <label class="save-toggle"><input type="checkbox" id="save-do" checked> <span data-i18n="manual.save">Save</span></label>
+                                    </div>
+                                    <input type="number" id="manual-do" step="0.01" min="0" placeholder="8.0">
                                 </div>
                                 <div class="form-group">
-                                    <label>Suspended Solids (mg/L)</label>
-                                    <input type="number" step="0.01" required placeholder="20.0">
+                                    <div class="form-label-row">
+                                        <label for="manual-ss" data-i18n="manual.ss">Suspended Solids (mg/L)</label>
+                                        <label class="save-toggle"><input type="checkbox" id="save-ss" checked> <span data-i18n="manual.save">Save</span></label>
+                                    </div>
+                                    <input type="number" id="manual-ss" step="0.01" min="0" placeholder="20.0">
                                 </div>
                                 <div class="form-group">
-                                    <label>Nitrite (mg/L)</label>
-                                    <input type="number" step="0.001" required placeholder="0.5">
+                                    <div class="form-label-row">
+                                        <label for="manual-nitrite" data-i18n="manual.nitrite">Nitrite (mg/L)</label>
+                                        <label class="save-toggle"><input type="checkbox" id="save-nitrite" checked> <span data-i18n="manual.save">Save</span></label>
+                                    </div>
+                                    <input type="number" id="manual-nitrite" step="0.001" min="0" placeholder="0.5">
                                 </div>
                                 <div class="form-group">
-                                    <label>Nitrate (mg/L)</label>
-                                    <input type="number" step="0.01" required placeholder="10.0">
+                                    <div class="form-label-row">
+                                        <label for="manual-nitrate" data-i18n="manual.nitrate">Nitrate (mg/L)</label>
+                                        <label class="save-toggle"><input type="checkbox" id="save-nitrate" checked> <span data-i18n="manual.save">Save</span></label>
+                                    </div>
+                                    <input type="number" id="manual-nitrate" step="0.01" min="0" placeholder="10.0">
                                 </div>
                                 <div class="form-group">
-                                    <label>Phosphate (mg/L)</label>
-                                    <input type="number" step="0.01" required placeholder="2.0">
+                                    <div class="form-label-row">
+                                        <label for="manual-phosphate" data-i18n="manual.phosphate">Phosphate (mg/L)</label>
+                                        <label class="save-toggle"><input type="checkbox" id="save-phosphate" checked> <span data-i18n="manual.save">Save</span></label>
+                                    </div>
+                                    <input type="number" id="manual-phosphate" step="0.01" min="0" placeholder="2.0">
                                 </div>
                                 <div class="form-group">
-                                    <label>Water Level In (cm)</label>
-                                    <input type="number" step="0.1" required placeholder="100">
+                                    <div class="form-label-row">
+                                        <label for="manual-level-in" data-i18n="manual.levelIn">Water Level In (cm)</label>
+                                        <label class="save-toggle"><input type="checkbox" id="save-level-in" checked> <span data-i18n="manual.save">Save</span></label>
+                                    </div>
+                                    <input type="number" id="manual-level-in" step="0.1" min="0" placeholder="100">
                                 </div>
                                 <div class="form-group">
-                                    <label>Water Level Out (cm)</label>
-                                    <input type="number" step="0.1" required placeholder="95">
+                                    <div class="form-label-row">
+                                        <label for="manual-level-out" data-i18n="manual.levelOut">Water Level Out (cm)</label>
+                                        <label class="save-toggle"><input type="checkbox" id="save-level-out" checked> <span data-i18n="manual.save">Save</span></label>
+                                    </div>
+                                    <input type="number" id="manual-level-out" step="0.1" min="0" placeholder="95">
                                 </div>
                             </div>
                             <div class="form-actions">
-                                <button type="reset" class="btn btn-ghost">Reset</button>
-                                <button type="submit" class="btn btn-primary">Save Record</button>
+                                <button type="reset" class="btn btn-ghost" data-i18n="manual.reset">Reset</button>
+                                <button type="submit" class="btn btn-primary" data-i18n="manual.saveRecord">Save Record</button>
                             </div>
                         </form>
                     </div>
@@ -240,9 +286,9 @@
 
                 <div id="devices-view" class="page-section">
                     <div class="page-header">
-                        <h1>Device Manager</h1>
+                        <h1 data-i18n="devices.title">Device Manager</h1>
                         <button class="btn btn-primary" onclick="openDeviceModal()">
-                            <i data-lucide="plus"></i> <span style="display:none; @media(min-width:600px){display:inline}">Add Device</span>
+                            <i data-lucide="plus"></i> <span style="display:none; @media(min-width:600px){display:inline}" data-i18n="devices.add">Add Device</span>
                         </button>
                     </div>
                     <div class="device-grid" id="device-list">
@@ -251,9 +297,9 @@
 
                 <div id="users-view" class="page-section">
                     <div class="page-header">
-                        <h1>User Management</h1>
+                        <h1 data-i18n="users.title">User Management</h1>
                         <button class="btn btn-primary" onclick="openUserModal()">
-                            <i data-lucide="user-plus"></i> <span style="display:none; @media(min-width:600px){display:inline}">Add User</span>
+                            <i data-lucide="user-plus"></i> <span style="display:none; @media(min-width:600px){display:inline}" data-i18n="users.add">Add User</span>
                         </button>
                     </div>
                     <div class="device-grid" id="user-list">
@@ -262,7 +308,7 @@
 
                 <div id="logs-view" class="page-section">
                     <div class="page-header">
-                        <h1>System Logs</h1>
+                        <h1 data-i18n="logs.title">System Logs</h1>
                     </div>
                     <div class="glass-card">
                         <ul class="log-list">
@@ -279,78 +325,76 @@
                 </div>
             </main>
         </section>
-
         <div id="device-modal" class="modal hidden">
             <div class="glass-card modal-content">
                 <div class="modal-header">
-                    <h3 id="modal-title">Add Device</h3>
+                    <h3 id="modal-title" data-i18n="devices.modalAddTitle">Add Device</h3>
                     <button class="close-btn" onclick="closeDeviceModal()"><i data-lucide="x"></i></button>
                 </div>
                 <form id="device-form" onsubmit="handleDeviceSubmit(event)">
                     <input type="hidden" id="dev-id">
                     <div style="display:flex; flex-direction:column; gap:16px;">
                         <div class="form-group">
-                            <label>ชื่ออุปกรณ์</label>
+                            <label data-i18n="devices.deviceName">Device Name</label>
                             <input type="text" id="dev-name" required class="glass-input">
                         </div>
                         <div class="form-group">
-                            <label>สถานที่ติดตั้ง</label>
+                            <label data-i18n="devices.location">Location</label>
                             <input type="text" id="dev-hos" required class="glass-input">
                         </div>
                         <div class="form-group">
-                            <label>ผู้รับผิดชอบ</label>
+                            <label data-i18n="devices.responsible">Responsible</label>
                             <input type="text" id="dev-person" required class="glass-input">
                         </div>
                         <div class="form-group">
-                            <label>สถานะ</label>
+                            <label data-i18n="devices.status">Status</label>
                             <select id="dev-status" class="glass-input">
-                                <option value="active">Active (ใช้งานปกติ)</option>
-                                <option value="maintenance">Maintenance (ซ่อมบำรุง)</option>
-                                <option value="offline">Offline (ปิดใช้งาน)</option>
+                                <option value="active" data-i18n="devices.statusActive">Active</option>
+                                <option value="maintenance" data-i18n="devices.statusMaintenance">Maintenance</option>
+                                <option value="offline" data-i18n="devices.statusOffline">Offline</option>
                             </select>
                         </div>
                     </div>
                     <div class="modal-actions">
-                        <button type="button" class="btn btn-ghost" onclick="closeDeviceModal()">ยกเลิก</button>
-                        <button type="submit" class="btn btn-primary">บันทึก</button>
+                        <button type="button" class="btn btn-ghost" onclick="closeDeviceModal()" data-i18n="common.cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-i18n="common.save">Save</button>
                     </div>
                 </form>
             </div>
         </div>
-
         <div id="user-modal" class="modal hidden">
             <div class="glass-card modal-content">
                 <div class="modal-header">
-                    <h3 id="user-modal-title">เพิ่มผู้ใช้งาน</h3>
+                    <h3 id="user-modal-title" data-i18n="users.modalAddTitle">Add User</h3>
                     <button class="close-btn" onclick="closeUserModal()"><i data-lucide="x"></i></button>
                 </div>
                 <form id="user-form" onsubmit="handleUserSubmit(event)">
                     <input type="hidden" id="user-id">
                     <div style="display:flex; flex-direction:column; gap:16px;">
                         <div class="form-group">
-                            <label>ชื่อ - นามสกุล</label>
-                            <input type="text" id="user-name" required class="glass-input" placeholder="เช่น สมชาย ใจดี">
+                            <label data-i18n="users.name">Full Name</label>
+                            <input type="text" id="user-name" required class="glass-input">
                         </div>
                         <div class="form-group">
-                            <label>อีเมล (Login ID)</label>
+                            <label data-i18n="users.email">Email (Login ID)</label>
                             <input type="email" id="user-email" required class="glass-input" placeholder="user@domain.com">
                         </div>
                         <div class="form-group">
-                            <label>แผนก/ตำแหน่ง</label>
-                            <input type="text" id="user-dept" required class="glass-input" placeholder="เช่น แผนกซ่อมบำรุง">
+                            <label data-i18n="users.dept">Department/Position</label>
+                            <input type="text" id="user-dept" required class="glass-input">
                         </div>
                         <div class="form-group">
-                            <label>สิทธิ์การใช้งาน (Role)</label>
+                            <label data-i18n="users.role">Role</label>
                             <select id="user-role" class="glass-input">
-                                <option value="admin">Admin (ผู้ดูแลระบบ)</option>
-                                <option value="user">User (ผู้ใช้ทั่วไป)</option>
-                                <option value="viewer">Viewer (ดูได้อย่างเดียว)</option>
+                                <option value="admin" data-i18n="users.roleAdmin">Admin</option>
+                                <option value="user" data-i18n="users.roleUser">User</option>
+                                <option value="viewer" data-i18n="users.roleViewer">Viewer</option>
                             </select>
                         </div>
                     </div>
                     <div class="modal-actions">
-                        <button type="button" class="btn btn-ghost" onclick="closeUserModal()">ยกเลิก</button>
-                        <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
+                        <button type="button" class="btn btn-ghost" onclick="closeUserModal()" data-i18n="common.cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-i18n="common.save">Save</button>
                     </div>
                 </form>
             </div>
@@ -360,3 +404,11 @@
     <script src="script.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
