@@ -276,6 +276,14 @@ document.addEventListener('DOMContentLoaded', () => {
     generateHistory();
     initHistoryChart();
     try { initGaugeCharts(); } catch(e) { console.error("Gauge init error:", e); }
+
+    const hash = window.location.hash.replace("#", "");
+
+    if (hash) {
+        document.getElementById('login-view').classList.remove('active');
+        document.getElementById('main-layout').classList.add('active');
+        navigate(hash);
+    }
 });
 
 // --- Responsive Sidebar Logic ---
