@@ -15,6 +15,7 @@ const state = {
     })(),
     historyData: [],
     historyChart: null,
+    historyChartPost: null,
     // เธเนเธญเธกเธนเธฅเธญเธธเธเธเธฃเธ“เน
     devices: [
         { id: 1, name: 'Main Pump House', responsible: 'Somchai Jaidee', status: 'active', loc: 'Bangkok Hospital' },
@@ -23,9 +24,13 @@ const state = {
     ],
     // เธเนเธญเธกเธนเธฅเธเธนเนเนเธเนเธเธฒเธ
     users: [
-        { id: 1, name: 'System Admin', email: 'admin@hydro.com', role: 'admin', hospital: 'เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ' },
-        { id: 2, name: 'Somsri Operation', email: 'somsri@hydro.com', role: 'user', hospital: 'เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ' },
-        { id: 3, name: 'Engineer Team', email: 'eng@hydro.com', role: 'user', hospital: 'เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ' }
+        { id: 1, name: 'System Admin', email: 'admin@hydro.com', role: 'admin', hospital: 'pranangklao' },
+        { id: 2, name: 'Somsri Operation', email: 'somsri@hydro.com', role: 'user', hospital: 'pranangklao' },
+        { id: 3, name: 'Engineer Team', email: 'eng@hydro.com', role: 'user', hospital: 'pranangklao' }
+    ],
+    pendingUsers: [
+        { id: 101, name: 'Narin Operator', email: 'narin.signup@hydro.com', hospital: 'pranangklao', requestedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
+        { id: 102, name: 'Lalita Lab Team', email: 'lalita.signup@hydro.com', hospital: 'pranangklao', requestedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString() }
     ],
     gauges: {}
 };
@@ -48,60 +53,65 @@ if (!state.logs.length) {
 
 const translations = {
     th: {
-        'login.welcome': 'เธขเธดเธเธ”เธตเธ•เนเธญเธเธฃเธฑเธ',
-        'login.subtitle': 'เธฃเธฐเธเธเธ•เธดเธ”เธ•เธฒเธกเธเธธเธ“เธ เธฒเธเธเนเธณเน€เธชเธตเธข<br>เธ•เนเธเนเธเธเธฃเธฐเธเธเธเธณเธเธฑเธ” เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ',
-        'login.email': 'เธญเธตเน€เธกเธฅ',
-        'login.password': 'เธฃเธซเธฑเธชเธเนเธฒเธ',
-        'login.emailPlaceholder': 'เธเธฃเธญเธเธญเธตเน€เธกเธฅ',
-        'login.passwordPlaceholder': 'เธเธฃเธญเธเธฃเธซเธฑเธชเธเนเธฒเธ',
-        'login.button': 'เน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธ',
+        'login.welcome': 'ยินดีต้อนรับ',
+        'login.subtitle': 'ระบบติดตามคุณภาพน้ำเสีย<br>ต้นแบบระบบบำบัด โรงพยาบาลพระนั่งเกล้า',
+        'login.email': 'อีเมล',
+        'login.password': 'รหัสผ่าน',
+        'login.emailPlaceholder': 'กรอกอีเมล',
+        'login.passwordPlaceholder': 'กรอกรหัสผ่าน',
+        'login.button': 'เข้าสู่ระบบ',
         'login.adminHint': 'By logging in, you agree to our Terms of Service.',
-        'nav.dashboard': 'เนเธ”เธเธเธญเธฃเนเธ”',
-        'nav.history': 'เธเธฃเธฐเธงเธฑเธ•เธด',
-        'nav.manual': 'เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅ',
-        'nav.adminSection': 'เธเธนเนเธ”เธนเนเธฅเธฃเธฐเธเธ',
-        'nav.devices': 'เธเธฑเธ”เธเธฒเธฃเธญเธธเธเธเธฃเธ“เน',
-        'nav.users': 'เธเธฑเธ”เธเธฒเธฃเธเธนเนเนเธเน',
-        'nav.logs': 'เธเธฑเธเธ—เธถเธเธฃเธฐเธเธ',
-        'nav.logout': 'เธญเธญเธเธเธฒเธเธฃเธฐเธเธ',
-        'dashboard.title': 'เนเธ”เธเธเธญเธฃเนเธ”',
-        'dashboard.subtitle': 'เธ•เธดเธ”เธ•เธฒเธกเธเธธเธ“เธ เธฒเธเธเนเธณเนเธเธเน€เธฃเธตเธขเธฅเนเธ—เธกเน',
-        'history.title': 'เธงเธดเน€เธเธฃเธฒเธฐเธซเนเธเธฃเธฐเธงเธฑเธ•เธด',
-        'history.subtitle': 'เนเธเธงเนเธเนเธกเธขเนเธญเธเธซเธฅเธฑเธเนเธฅเธฐเธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅ',
-        'history.daily': 'เธฃเธฒเธขเธงเธฑเธ',
-        'history.monthly': 'เธฃเธฒเธขเน€เธ”เธทเธญเธ',
-        'manual.title': 'เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅเธ”เนเธงเธขเธ•เธเน€เธญเธ',
-        'manual.subtitle': 'เธเธฑเธเธ—เธถเธเธเนเธฒเธ—เธตเนเธ•เธฃเธงเธเธงเธฑเธ”เธเธฃเธดเธ',
-        'manual.save': 'เธเธฑเธเธ—เธถเธ',
-        'manual.reset': 'เธฃเธตเน€เธเนเธ•',
-        'manual.saveRecord': 'เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅ',
-        'manual.ph': 'เธเนเธฒ pH (0-14)',
-        'manual.do': 'เธญเธญเธเธเธดเน€เธเธเธฅเธฐเธฅเธฒเธขเธเนเธณ (mg/L)',
-        'manual.ss': 'เธชเธฒเธฃเนเธเธงเธเธฅเธญเธข (mg/L)',
-        'manual.nitrite': 'เนเธเนเธ•เธฃเธ•เน (mg/L)',
-        'manual.nitrate': 'เนเธเน€เธ•เธฃเธ• (mg/L)',
-        'manual.phosphate': 'เธเธญเธชเน€เธเธ• (mg/L)',
-        'manual.levelIn': 'เธฃเธฐเธ”เธฑเธเธเนเธณเน€เธเนเธฒ (cm)',
-        'manual.levelOut': 'เธฃเธฐเธ”เธฑเธเธเนเธณเธญเธญเธ (cm)',
-        'devices.title': 'เธเธฑเธ”เธเธฒเธฃเธญเธธเธเธเธฃเธ“เน',
-        'users.title': 'เธเธฑเธ”เธเธฒเธฃเธเธนเนเนเธเน',
-        'logs.title': 'เธเธฑเธเธ—เธถเธเธฃเธฐเธเธ',
-        'status.online': 'เธฃเธฐเธเธเธเธเธ•เธด',
-        'status.warning': 'เนเธเนเธเน€เธ•เธทเธญเธ',
-        'status.critical': 'เธงเธดเธเธคเธ•',
-        'alert.fillAll': 'เธเธฃเธธเธ“เธฒเธเธฃเธญเธเธเนเธญเธกเธนเธฅเนเธซเนเธเธฃเธ',
-        'alert.selectOne': 'เธเธฃเธธเธ“เธฒเน€เธฅเธทเธญเธเธญเธขเนเธฒเธเธเนเธญเธข 1 เธเธฒเธฃเธฒเธกเธดเน€เธ•เธญเธฃเนเธ—เธตเนเธเธฐเธเธฑเธเธ—เธถเธ',
-        'alert.pleaseEnter': 'เธเธฃเธธเธ“เธฒเธเธฃเธญเธ',
-        'alert.invalidValue': 'เธเนเธฒเนเธกเนเธ–เธนเธเธ•เนเธญเธเธชเธณเธซเธฃเธฑเธ',
-        'alert.savedCount': 'เธเธฑเธเธ—เธถเธเนเธฅเนเธง {count} เธเธฒเธฃเธฒเธกเธดเน€เธ•เธญเธฃเน',
-        'field.ph': 'เธเนเธฒ pH',
-        'field.do': 'เธญเธญเธเธเธดเน€เธเธเธฅเธฐเธฅเธฒเธขเธเนเธณ',
-        'field.ss': 'เธชเธฒเธฃเนเธเธงเธเธฅเธญเธข',
-        'field.nitrite': 'เนเธเนเธ•เธฃเธ•เน',
-        'field.nitrate': 'เนเธเน€เธ•เธฃเธ•',
-        'field.phosphate': 'เธเธญเธชเน€เธเธ•',
-        'field.levelIn': 'เธฃเธฐเธ”เธฑเธเธเนเธณเน€เธเนเธฒ',
-        'field.levelOut': 'เธฃเธฐเธ”เธฑเธเธเนเธณเธญเธญเธ'
+        'nav.dashboard': 'แดชบอร์ด',
+        'nav.history': 'ประวัติ',
+        'nav.manual': 'บันทึกข้อมูล',
+        'nav.adminSection': 'ผู้ดูแลระบบ',
+        'nav.devices': 'จัดการอุปกรณ์',
+        'nav.users': 'จัดการผู้ใช้',
+        'nav.logs': 'บันทึกระบบ',
+        'nav.logout': 'ออกจากระบบ',
+        'dashboard.title': 'แดชบอร์ด',
+        'dashboard.subtitle': 'ติดตามคุณภาพน้ำแบบเรียลไทม์',
+        'section.set1': 'หลังบำบัด',
+        'section.set2': 'ก่อนบำบัด',
+        'history.title': 'วิเคราะห์ประวัติ',
+        'history.subtitle': 'แนวโน้มย้อนหลังและบันทึกข้อมูล',
+        'history.daily': 'รายวัน',
+        'history.monthly': 'รายเดือน',
+        'manual.title': 'บันทึกข้อมูลด้วยตนเอง',
+        'manual.subtitle': 'บันทึกค่าที่ตรวจวัดจริง',
+        'manual.mode': 'เลือกชุดข้อมูลที่ต้องการบันทึก',
+        'manual.modeBefore': 'ก่อนบำบัด',
+        'manual.modeAfter': 'หลังบำบัด',
+        'manual.save': 'บันทึก',
+        'manual.reset': 'รีเซ็ต',
+        'manual.saveRecord': 'บันทึกข้อมูล',
+        'manual.ph': 'ค่า pH (0-14)',
+        'manual.do': 'ออกซิเจนละลายน้ำ (mg/L)',
+        'manual.ss': 'สารแขวนลอย (mg/L)',
+        'manual.nitrite': 'ไนไตรต์ (mg/L)',
+        'manual.nitrate': 'ไนเตรต (mg/L)',
+        'manual.phosphate': 'ฟอสเฟต (mg/L)',
+        'manual.levelIn': 'ระดับน้ำเข้า (cm)',
+        'manual.levelOut': 'ระดับน้ำออก (cm)',
+        'devices.title': 'จัดการอุปกรณ์',
+        'users.title': 'จัดการผู้ใช้',
+        'logs.title': 'บันทึกระบบ',
+        'status.online': 'ระบบปกติ',
+        'status.warning': 'แจ้งเตือน',
+        'status.critical': 'วิกฤต',
+        'alert.fillAll': 'กรุณากรอกข้อมูลให้ครบ',
+        'alert.selectOne': 'กรุณาเลือกอย่างน้อย 1 พารามิเตอร์ที่จะบันทึก',
+        'alert.pleaseEnter': 'กรุณากรอก',
+        'alert.invalidValue': 'ค่าไม่ถูกต้องสำหรับ',
+        'alert.savedCount': 'บันทึกแล้ว {count} พารามิเตอร์',
+        'field.ph': 'ค่า pH',
+        'field.do': 'ออกซิเจนละลายน้ำ',
+        'field.ss': 'สารแขวนลอย',
+        'field.nitrite': 'ไนไตรต์',
+        'field.nitrate': 'ไนเตรต',
+        'field.phosphate': 'ฟอสเฟต',
+        'field.levelIn': 'ระดับน้ำเข้า',
+        'field.levelOut': 'ระดับน้ำออก'
     },
     en: {
         'login.welcome': 'Welcome Back',
@@ -122,12 +132,17 @@ const translations = {
         'nav.logout': 'Logout',
         'dashboard.title': 'Dashboard',
         'dashboard.subtitle': 'Real-time water quality monitoring',
+        'section.set1': 'After Treatment',
+        'section.set2': 'Before Treatment',
         'history.title': 'History Analysis',
         'history.subtitle': 'Historical trends and data logs',
         'history.daily': 'Daily',
         'history.monthly': 'Monthly',
         'manual.title': 'Manual Data Entry',
         'manual.subtitle': 'Record physical measurements',
+        'manual.mode': 'Select data set to save',
+        'manual.modeBefore': 'Before Treatment',
+        'manual.modeAfter': 'After Treatment',
         'manual.save': 'Save',
         'manual.reset': 'Reset',
         'manual.saveRecord': 'Save Record',
@@ -163,40 +178,50 @@ const translations = {
 
 const extraTranslations = {
     th: {
-        'devices.add': 'เน€เธเธดเนเธกเธญเธธเธเธเธฃเธ“เน',
-        'devices.modalAddTitle': 'เน€เธเธดเนเธกเธญเธธเธเธเธฃเธ“เน',
-        'devices.modalEditTitle': 'เนเธเนเนเธเธญเธธเธเธเธฃเธ“เน',
-        'devices.deviceName': 'เธเธทเนเธญเธญเธธเธเธเธฃเธ“เน',
-        'devices.location': 'เธชเธ–เธฒเธเธ—เธตเนเธ•เธดเธ”เธ•เธฑเนเธ',
-        'devices.responsible': 'เธเธนเนเธฃเธฑเธเธเธดเธ”เธเธญเธ',
-        'devices.status': 'เธชเธ–เธฒเธเธฐ',
-        'devices.statusActive': 'เธเธฃเนเธญเธกเนเธเนเธเธฒเธ',
-        'devices.statusMaintenance': 'เธเนเธญเธกเธเธณเธฃเธธเธ',
-        'devices.statusOffline': 'เธญเธญเธเนเธฅเธเน',
-        'devices.managedBy': 'เธ”เธนเนเธฅเนเธ”เธข',
-        'devices.edit': 'เนเธเนเนเธ',
-        'devices.deleteConfirm': 'เธขเธทเธเธขเธฑเธเธเธฒเธฃเธฅเธเธญเธธเธเธเธฃเธ“เนเธเธตเน?',
-        'users.add': 'เน€เธเธดเนเธกเธเธนเนเนเธเน',
-        'users.modalAddTitle': 'เน€เธเธดเนเธกเธเธนเนเนเธเนเธเธฒเธ',
-        'users.modalEditTitle': 'เนเธเนเนเธเธชเธดเธ—เธเธดเน',
-        'users.name': 'เธเธทเนเธญ - เธเธฒเธกเธชเธเธธเธฅ',
-        'users.email': 'เธญเธตเน€เธกเธฅ (Login ID)',
-        'users.role': 'เธชเธดเธ—เธเธดเนเธเธฒเธฃเนเธเนเธเธฒเธ',
-        'users.roleAdmin': 'เนเธญเธ”เธกเธดเธ',
-        'users.roleUser': 'เธเธนเนเนเธเน',
-        'users.roleViewer': 'เธเธนเนเธเธก',
-        'users.hospital': 'เธชเธฑเธเธเธฑเธ”เนเธฃเธเธเธขเธฒเธเธฒเธฅ',
-        'users.hospitalPranangklao': '&#10003; เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ',
-        'users.editPermission': 'เนเธเนเนเธเธชเธดเธ—เธเธดเน',
-        'users.deleteConfirm': 'เธเธธเธ“เธ•เนเธญเธเธเธฒเธฃเธฅเธเธเธนเนเนเธเนเธเธฒเธเธเธตเนเธญเธญเธเธเธฒเธเธฃเธฐเธเธเธซเธฃเธทเธญเนเธกเน?',
-        'common.cancel': 'เธขเธเน€เธฅเธดเธ',
-        'common.save': 'เธเธฑเธเธ—เธถเธ',
-        'log.adminUpdatedDevice': 'เนเธญเธ”เธกเธดเธเธญเธฑเธเน€เธ”เธ•เธญเธธเธเธเธฃเธ“เน',
-        'log.adminAddedDevice': 'เนเธญเธ”เธกเธดเธเน€เธเธดเนเธกเธญเธธเธเธเธฃเธ“เน',
-        'log.adminDeletedDevice': 'เนเธญเธ”เธกเธดเธเธฅเธเธญเธธเธเธเธฃเธ“เน',
-        'log.adminUpdatedUser': 'เนเธญเธ”เธกเธดเธเธญเธฑเธเน€เธ”เธ•เธเธนเนเนเธเน',
-        'log.adminAddedUser': 'เนเธญเธ”เธกเธดเธเน€เธเธดเนเธกเธเธนเนเนเธเน',
-        'log.adminDeletedUser': 'เนเธญเธ”เธกเธดเธเธฅเธเธเธนเนเนเธเน'
+        'devices.add': 'เพิ่มอุปกรณ์',
+        'devices.modalAddTitle': 'เพิ่มอุปกรณ์',
+        'devices.modalEditTitle': 'แก้ไขอุปกรณ์',
+        'devices.deviceName': 'ชื่ออุปกรณ์',
+        'devices.location': 'สถานที่ติดตั้ง',
+        'devices.responsible': 'ผู้รับผิดชอบ',
+        'devices.status': 'สถานะ',
+        'devices.statusActive': 'พร้อมใช้งาน',
+        'devices.statusMaintenance': 'ซ่อมบำรุง',
+        'devices.statusOffline': 'ออฟไลน์',
+        'devices.managedBy': 'ดูแลโดย',
+        'devices.edit': 'แก้ไข',
+        'devices.deleteConfirm': 'ยืนยันการลบอุปกรณ์นี้?',
+        'users.add': 'เพิ่มผู้ใช้',
+        'users.notifications': 'รับการแจ้งเตือน',
+        'users.pendingTitle': 'คำขอสมัครใช้งาน',
+        'users.pendingSubtitle': 'ตรวจสอบและอนุมัติผู้ใช้ที่สมัครเข้ามา',
+        'users.pendingEmpty': 'ยังไม่มีคำขอสมัครใหม่',
+        'users.pendingStatus': 'รออนุมัติ',
+        'users.accept': 'อนุมัติ',
+        'users.reject': 'ปฏิเสธ',
+        'users.requestDate': 'เวลาที่สมัคร',
+        'users.modalAddTitle': 'เพิ่มผู้ใช้งาน',
+        'users.modalEditTitle': 'แก้ไขผู้ใช้งาน',
+        'users.name': 'ชื่อ - นามสกุล',
+        'users.email': 'อีเมล (Login ID)',
+        'users.role': 'สิทธิ์การใช้งาน',
+        'users.roleAdmin': 'แอดมิน',
+        'users.roleUser': 'ผู้ใช้',
+        'users.roleViewer': 'ผู้ชม',
+        'users.hospital': 'สังกัดโรงพยาบาล',
+        'users.hospitalPranangklao': '🏥 โรงพยาบาลพระนั่งเกล้า',
+        'users.editPermission': 'แก้ไขสิทธิ์',
+        'users.deleteConfirm': 'คุณต้องการลบผู้ใช้งานนี้ออกจากระบบหรือไม่?',
+        'common.cancel': 'ยกเลิก',
+        'common.save': 'บันทึก',
+        'log.adminUpdatedDevice': 'แอดมินอัปเดตอุปกรณ์',
+        'log.adminAddedDevice': 'แอดมินเพิ่มอุปกรณ์',
+        'log.adminDeletedDevice': 'แอดมินลบอุปกรณ์',
+        'log.adminUpdatedUser': 'แอดมินอัปเดตผู้ใช้',
+        'log.adminAddedUser': 'แอดมินเพิ่มผู้ใช้',
+        'log.adminDeletedUser': 'แอดมินลบผู้ใช้',
+        'log.adminAcceptedUser': 'แอดมินอนุมัติผู้สมัคร',
+        'log.adminRejectedUser': 'แอดมินปฏิเสธผู้สมัคร'
     },
     en: {
         'devices.add': 'Add Device',
@@ -213,8 +238,16 @@ const extraTranslations = {
         'devices.edit': 'Edit',
         'devices.deleteConfirm': 'Are you sure you want to delete this device?',
         'users.add': 'Add User',
+        'users.notifications': 'Notifications',
+        'users.pendingTitle': 'Pending User Requests',
+        'users.pendingSubtitle': 'Review and accept new signup requests.',
+        'users.pendingEmpty': 'No pending requests right now.',
+        'users.pendingStatus': 'Pending',
+        'users.accept': 'Accept',
+        'users.reject': 'Reject',
+        'users.requestDate': 'Requested at',
         'users.modalAddTitle': 'Add User',
-        'users.modalEditTitle': 'Edit Permission',
+        'users.modalEditTitle': 'Edit User',
         'users.name': 'Full Name',
         'users.email': 'Email (Login ID)',
         'users.role': 'Role',
@@ -222,7 +255,7 @@ const extraTranslations = {
         'users.roleUser': 'User',
         'users.roleViewer': 'Viewer',
         'users.hospital': 'Hospital Affiliation',
-        'users.hospitalPranangklao': '&#10003; Pranangklao Hospital',
+        'users.hospitalPranangklao': '🏥 Pranangklao Hospital',
         'users.editPermission': 'Edit Permission',
         'users.deleteConfirm': 'Are you sure you want to remove this user?',
         'common.cancel': 'Cancel',
@@ -232,12 +265,11 @@ const extraTranslations = {
         'log.adminDeletedDevice': 'Admin deleted device',
         'log.adminUpdatedUser': 'Admin updated user',
         'log.adminAddedUser': 'Admin added user',
-        'log.adminDeletedUser': 'Admin deleted user'
+        'log.adminDeletedUser': 'Admin deleted user',
+        'log.adminAcceptedUser': 'Admin accepted signup request for',
+        'log.adminRejectedUser': 'Admin rejected signup request for'
     }
 };
-
-const DEFAULT_HOSPITAL = 'pranangklao-hospital';
-
 function t(key) {
     return (
         extraTranslations[state.language]?.[key] ||
@@ -265,6 +297,7 @@ function applyLanguage() {
     // Re-render dynamic sections that are generated from JS templates.
     if (document.getElementById('device-list')) renderDevices();
     if (document.getElementById('user-list')) renderUsers();
+    if (document.getElementById('user-request-list')) renderPendingUsers();
     if (document.getElementById('history-table-body')) refreshHistoryView();
     if (document.getElementById('log-list')) renderLogs();
 }
@@ -273,47 +306,46 @@ function toggleLanguage() {
     state.language = state.language === 'th' ? 'en' : 'th';
     localStorage.setItem('lang', state.language);
     applyLanguage();
+    handleManualModeChange();
 }
 
-function ensureUserHospitalField() {
-    const form = document.getElementById('user-form');
-    if (!form) return;
+function getManualTreatmentMode() {
+    return document.getElementById('manual-treatment-mode')?.value === 'before' ? 'before' : 'after';
+}
 
-    const formStack = form.querySelector('div[style*="flex-direction:column"]');
-    if (!formStack) return;
+function handleManualModeChange() {
+    const mode = getManualTreatmentMode();
+    const isBeforeMode = mode === 'before';
+    const doGroup = document.getElementById('manual-do-group');
+    const doSave = document.getElementById('save-do');
+    const doInput = document.getElementById('manual-do');
 
-    let group = document.getElementById('user-hospital-group');
-    if (!group) {
-        group = document.createElement('div');
-        group.id = 'user-hospital-group';
-        group.className = 'form-group';
-        group.innerHTML = `
-            <label data-i18n="users.hospital">เธชเธฑเธเธเธฑเธ”เนเธฃเธเธเธขเธฒเธเธฒเธฅ</label>
-            <select id="user-hospital" class="glass-input" required>
-                <option value="${DEFAULT_HOSPITAL}" data-i18n="users.hospitalPranangklao">&#10003; เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ</option>
-            </select>
-        `;
-        formStack.appendChild(group);
+    if (doGroup) doGroup.classList.toggle('hidden', isBeforeMode);
+    if (doSave) {
+        doSave.disabled = isBeforeMode;
+        doSave.checked = !isBeforeMode;
     }
-
-    const hospitalSelect = group.querySelector('#user-hospital');
-    if (!hospitalSelect) return;
-    hospitalSelect.required = true;
-    hospitalSelect.value = hospitalSelect.value || DEFAULT_HOSPITAL;
-    group.style.display = '';
+    if (doInput) {
+        doInput.disabled = isBeforeMode;
+        if (isBeforeMode) doInput.value = '';
+    }
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    ensureUserHospitalField();
-    state.users = state.users.map((u) => ({ ...u, hospital: DEFAULT_HOSPITAL }));
     applyLanguage();
     lucide.createIcons();
     generateHistory();
     initHistoryChart();
     try { initGaugeCharts(); } catch(e) { console.error("Gauge init error:", e); }
+    handleManualModeChange();
 
-    initLiff();
+    const manualForm = document.getElementById('manual-form');
+    if (manualForm) {
+        manualForm.addEventListener('reset', () => {
+            setTimeout(() => handleManualModeChange(), 0);
+        });
+    }
 
     const hash = window.location.hash.replace("#", "");
 
@@ -398,11 +430,216 @@ function navigate(viewId) {
     }
 
     if (viewId === 'devices') renderDevices();
-    if (viewId === 'users') renderUsers();
+    if (viewId === 'users') {
+        showUsersListPanel();
+        renderUsers();
+        renderPendingUsers();
+    }
     if (viewId === 'logs') renderLogs();
 }
 
 // --- Dashboard Logic ---
+function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+}
+
+function getHistorySortedByNewest() {
+    return [...state.historyData].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+}
+
+function getLatestSavedOtherParamsFromHistory() {
+    const fields = ['ss', 'nitrite', 'nitrate', 'phosphate', 'levelIn', 'levelOut'];
+    const latest = {};
+    const sorted = getHistorySortedByNewest();
+
+    for (const field of fields) {
+        const row = sorted.find((item) => Number.isFinite(Number(item?.[field])));
+        latest[field] = row ? row[field] : null;
+    }
+
+    return latest;
+}
+
+function calculatePostTreatmentMetrics(source = {}, useJitter = false) {
+    const jitter = (scale) => (useJitter ? (Math.random() * scale * 2 - scale) : 0);
+    const toNum = (value) => {
+        const numeric = Number(value);
+        return Number.isFinite(numeric) ? numeric : null;
+    };
+
+    const phIn = toNum(source.ph);
+    const ssIn = toNum(source.ss);
+    const nitriteIn = toNum(source.nitrite);
+    const nitrateIn = toNum(source.nitrate);
+    const phosphateIn = toNum(source.phosphate);
+    const levelIn = toNum(source.levelIn);
+    const levelOut = toNum(source.levelOut);
+
+    const postPh = phIn === null ? 7.2 : clamp(7.2 + (phIn - 7.2) * 0.35 + jitter(0.05), 0, 14);
+    const postSs = ssIn === null ? 12 : clamp(ssIn * 0.48 + jitter(0.8), 0, 999);
+    const postNitrite = nitriteIn === null ? 0.2 : clamp(nitriteIn * 0.42 + jitter(0.03), 0, 999);
+    const postNitrate = nitrateIn === null ? 8 : clamp(nitrateIn * 0.7 + jitter(0.2), 0, 999);
+    const postPhosphate = phosphateIn === null ? 1.1 : clamp(phosphateIn * 0.55 + jitter(0.05), 0, 999);
+    const postLevelIn = levelIn === null ? 78 : clamp(levelIn - 1 + jitter(0.2), 0, 999);
+    const postLevelOut = levelOut === null ? 72 : clamp(levelOut - 2 + jitter(0.2), 0, 999);
+
+    return {
+        ph: postPh.toFixed(2),
+        ss: postSs.toFixed(0),
+        nitrite: postNitrite.toFixed(3),
+        nitrate: postNitrate.toFixed(1),
+        phosphate: postPhosphate.toFixed(2),
+        levelIn: postLevelIn.toFixed(1),
+        levelOut: postLevelOut.toFixed(1)
+    };
+}
+
+function calculatePreTreatmentFromPostMetrics(postSource = {}) {
+    const toNum = (value) => {
+        const numeric = Number(value);
+        return Number.isFinite(numeric) ? numeric : null;
+    };
+    const fallbackDo = getLatestSavedPreValue('do', Number(document.getElementById('val-do')?.textContent) || 8);
+
+    const postPh = toNum(postSource.ph);
+    const postSs = toNum(postSource.ss);
+    const postNitrite = toNum(postSource.nitrite);
+    const postNitrate = toNum(postSource.nitrate);
+    const postPhosphate = toNum(postSource.phosphate);
+    const postLevelIn = toNum(postSource.levelIn);
+    const postLevelOut = toNum(postSource.levelOut);
+
+    const prePh = postPh === null ? 7.0 : clamp(7.2 + (postPh - 7.2) / 0.35, 0, 14);
+    const preSs = postSs === null ? 25 : clamp(postSs / 0.48, 0, 999);
+    const preNitrite = postNitrite === null ? 0.5 : clamp(postNitrite / 0.42, 0, 999);
+    const preNitrate = postNitrate === null ? 12 : clamp(postNitrate / 0.7, 0, 999);
+    const prePhosphate = postPhosphate === null ? 2.1 : clamp(postPhosphate / 0.55, 0, 999);
+    const preLevelIn = postLevelIn === null ? 80 : clamp(postLevelIn + 1, 0, 999);
+    const preLevelOut = postLevelOut === null ? 75 : clamp(postLevelOut + 2, 0, 999);
+
+    return {
+        ph: prePh.toFixed(2),
+        do: Number(fallbackDo).toFixed(2),
+        ss: preSs.toFixed(0),
+        nitrite: preNitrite.toFixed(3),
+        nitrate: preNitrate.toFixed(1),
+        phosphate: prePhosphate.toFixed(2),
+        levelIn: preLevelIn.toFixed(1),
+        levelOut: preLevelOut.toFixed(1)
+    };
+}
+
+function getPostMetricsFromRecord(record) {
+    const pickExplicit = (raw, digits) => {
+        if (raw === undefined) return null;
+        const numeric = Number(raw);
+        if (Number.isFinite(numeric)) return numeric.toFixed(digits);
+        return '-';
+    };
+    const computed = calculatePostTreatmentMetrics(record, false);
+    const pick = (raw, fallback, digits) => {
+        const explicit = pickExplicit(raw, digits);
+        return explicit === null ? fallback : explicit;
+    };
+    return {
+        ph: pick(record?.postPh, computed.ph, 2),
+        ss: pick(record?.postSs, computed.ss, 0),
+        nitrite: pick(record?.postNitrite, computed.nitrite, 3),
+        nitrate: pick(record?.postNitrate, computed.nitrate, 1),
+        phosphate: pick(record?.postPhosphate, computed.phosphate, 2),
+        levelIn: pick(record?.postLevelIn, computed.levelIn, 1),
+        levelOut: pick(record?.postLevelOut, computed.levelOut, 1)
+    };
+}
+
+function getLatestSavedPreValue(field, fallbackValue = null) {
+    const sorted = getHistorySortedByNewest();
+    const row = sorted.find((item) => Number.isFinite(Number(item?.[field])));
+    return row ? row[field] : fallbackValue;
+}
+
+function getLatestSavedPostParamsFromHistory() {
+    const fields = ['ph', 'ss', 'nitrite', 'nitrate', 'phosphate', 'levelIn', 'levelOut'];
+    const latest = {};
+    const sorted = getHistorySortedByNewest();
+
+    for (const field of fields) {
+        const row = sorted.find((item) => Number.isFinite(Number(getPostMetricsFromRecord(item)?.[field])));
+        latest[field] = row ? getPostMetricsFromRecord(row)[field] : null;
+    }
+    return latest;
+}
+
+function syncDashboardOtherParamsWithHistory(phForPost = null) {
+    const latestRecord = getHistorySortedByNewest()[0] || null;
+    const latestPre = latestRecord
+        ? {
+            ss: latestRecord.ss,
+            nitrite: latestRecord.nitrite,
+            nitrate: latestRecord.nitrate,
+            phosphate: latestRecord.phosphate,
+            levelIn: latestRecord.levelIn,
+            levelOut: latestRecord.levelOut
+        }
+        : getLatestSavedOtherParamsFromHistory();
+    const latestPost = latestRecord ? getPostMetricsFromRecord(latestRecord) : getLatestSavedPostParamsFromHistory();
+    const setText = (id, value) => {
+        if (value === null || value === undefined) return;
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+    };
+
+    setText('val-ss', latestPre.ss);
+    setText('val-nitrite', latestPre.nitrite);
+    setText('val-nitrate', latestPre.nitrate);
+    setText('val-phosphate', latestPre.phosphate);
+    setText('val-level-in', latestPre.levelIn);
+    setText('val-level-out', latestPre.levelOut);
+
+    setText('val-ph-post', latestPost.ph);
+    setText('val-ss-post', latestPost.ss);
+    setText('val-nitrite-post', latestPost.nitrite);
+    setText('val-nitrate-post', latestPost.nitrate);
+    setText('val-phosphate-post', latestPost.phosphate);
+    setText('val-level-in-post', latestPost.levelIn);
+    setText('val-level-out-post', latestPost.levelOut);
+
+    const postPh = Number(latestPost.ph);
+    if (state.gauges.phPost && Number.isFinite(postPh)) {
+        state.gauges.phPost.data.datasets[0].data = [postPh, 14 - postPh];
+        state.gauges.phPost.data.datasets[0].backgroundColor[0] = postPh < 6 || postPh > 8.5 ? '#f87171' : '#38bdf8';
+        state.gauges.phPost.update();
+        return;
+    }
+
+    const currentPh = Number.isFinite(Number(phForPost)) ? Number(phForPost) : Number(document.getElementById('val-ph')?.textContent);
+    applyPostTreatmentToDashboard({ ph: currentPh, ...latestPre }, false);
+}
+
+function applyPostTreatmentToDashboard(source, useJitter = false) {
+    const metrics = calculatePostTreatmentMetrics(source, useJitter);
+
+    const setText = (id, value) => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+    };
+
+    setText('val-ph-post', metrics.ph);
+    setText('val-ss-post', metrics.ss);
+    setText('val-nitrite-post', metrics.nitrite);
+    setText('val-nitrate-post', metrics.nitrate);
+    setText('val-phosphate-post', metrics.phosphate);
+    setText('val-level-in-post', metrics.levelIn);
+    setText('val-level-out-post', metrics.levelOut);
+
+    const phNum = Number(metrics.ph);
+    if (state.gauges.phPost && Number.isFinite(phNum)) {
+        state.gauges.phPost.data.datasets[0].data = [phNum, 14 - phNum];
+        state.gauges.phPost.data.datasets[0].backgroundColor[0] = phNum < 6 || phNum > 8.5 ? '#f87171' : '#38bdf8';
+        state.gauges.phPost.update();
+    }
+}
+
 function initGaugeCharts() {
     const phEl = document.getElementById('phCanvas');
     if(phEl) {
@@ -453,31 +690,69 @@ function initGaugeCharts() {
             }
         });
     }
+
+    const phPostEl = document.getElementById('phCanvas-post');
+    if (phPostEl) {
+        const ctxPhPost = phPostEl.getContext('2d');
+        state.gauges.phPost = new Chart(ctxPhPost, {
+            type: 'doughnut',
+            data: {
+                labels: ['Value', 'Remaining'],
+                datasets: [{
+                    data: [7.2, 6.8],
+                    backgroundColor: ['#38bdf8', 'rgba(255,255,255,0.05)'],
+                    borderWidth: 0,
+                    borderRadius: 10,
+                    cutout: '85%'
+                }]
+            },
+            options: {
+                rotation: -90,
+                circumference: 180,
+                animation: { animateRotate: true, animateScale: false },
+                plugins: { tooltip: { enabled: false }, legend: { display: false } },
+                maintainAspectRatio: false
+            }
+        });
+    }
 }
 
 function startDashboardUpdates() {
-    setInterval(() => {
-        const ph = (7.0 + (Math.random() * 1.0 - 0.5)).toFixed(2);
-        const doVal = (8.0 + (Math.random() * 2.0 - 1.0)).toFixed(2);
-        
-        const phTxt = document.getElementById('val-ph');
-        if(phTxt) phTxt.textContent = ph;
-        
-        const doTxt = document.getElementById('val-do');
-        if(doTxt) doTxt.textContent = doVal;
-        
-        if (state.gauges.ph) {
+    const syncDashboardFromLatestHistory = () => {
+        const latestPh = getLatestSavedPreValue('ph', null);
+        const latestDo = getLatestSavedPreValue('do', null);
+
+        const ph = latestPh !== null ? Number(latestPh) : Number(document.getElementById('val-ph')?.textContent);
+        const doVal = latestDo !== null ? Number(latestDo) : Number(document.getElementById('val-do')?.textContent);
+
+        const setText = (id, value, digits = 2) => {
+            if (!Number.isFinite(value)) return;
+            const element = document.getElementById(id);
+            if (element) element.textContent = value.toFixed(digits);
+        };
+
+        setText('val-ph', ph, 2);
+        setText('val-do', doVal, 2);
+
+        if (state.gauges.ph && Number.isFinite(ph)) {
             state.gauges.ph.data.datasets[0].data = [ph, 14 - ph];
             state.gauges.ph.data.datasets[0].backgroundColor[0] = ph < 6 || ph > 8.5 ? '#f87171' : '#38bdf8';
             state.gauges.ph.update();
         }
-        if (state.gauges.do) {
+        if (state.gauges.do && Number.isFinite(doVal)) {
             const maxDo = 15;
             state.gauges.do.data.datasets[0].data = [doVal, maxDo - doVal];
             state.gauges.do.update();
         }
-        updateSystemStatus(ph, doVal);
-        
+        if (Number.isFinite(ph) && Number.isFinite(doVal)) {
+            updateSystemStatus(ph, doVal);
+        }
+        syncDashboardOtherParamsWithHistory(ph);
+    };
+
+    syncDashboardFromLatestHistory();
+    setInterval(() => {
+        syncDashboardFromLatestHistory();
     }, 3000);
 }
 
@@ -555,13 +830,25 @@ function setHistoryViewMode(mode) {
 function getHistoryViewData() {
     const sorted = [...state.historyData].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     if (state.historyViewMode === 'daily') {
-        return sorted.map((row) => ({
-            ...row,
-            label: formatHistoryTimestamp(row.timestamp),
-            chartLabel: formatHistoryDayLabel(row.timestamp),
-            chartPh: toHistoryNumber(row.ph),
-            chartDo: toHistoryNumber(row.do)
-        }));
+        return sorted.map((row) => {
+            const post = getPostMetricsFromRecord(row);
+            return {
+                ...row,
+                postPh: post.ph,
+                postSs: post.ss,
+                postNitrite: post.nitrite,
+                postNitrate: post.nitrate,
+                postPhosphate: post.phosphate,
+                postLevelIn: post.levelIn,
+                postLevelOut: post.levelOut,
+                label: formatHistoryTimestamp(row.timestamp),
+                chartLabel: formatHistoryDayLabel(row.timestamp),
+                chartPh: toHistoryNumber(row.ph),
+                chartDo: toHistoryNumber(row.do),
+                chartPostPh: toHistoryNumber(post.ph),
+                chartPostSs: toHistoryNumber(post.ss)
+            };
+        });
     }
 
     const monthBuckets = new Map();
@@ -599,12 +886,23 @@ function getHistoryViewData() {
             const avgPhosphate = average(bucket.values.phosphate);
             const avgLevelIn = average(bucket.values.levelIn);
             const avgLevelOut = average(bucket.values.levelOut);
+            const post = calculatePostTreatmentMetrics({
+                ph: avgPh,
+                ss: avgSs,
+                nitrite: avgNitrite,
+                nitrate: avgNitrate,
+                phosphate: avgPhosphate,
+                levelIn: avgLevelIn,
+                levelOut: avgLevelOut
+            }, false);
 
             return {
                 label: formatHistoryMonthLabel(bucket.timestamp),
                 chartLabel: formatHistoryMonthLabel(bucket.timestamp),
                 chartPh: avgPh,
                 chartDo: avgDo,
+                chartPostPh: toHistoryNumber(post.ph),
+                chartPostSs: toHistoryNumber(post.ss),
                 ph: formatAverage(avgPh, 2),
                 do: formatAverage(avgDo, 2),
                 ss: formatAverage(avgSs, 0),
@@ -612,7 +910,14 @@ function getHistoryViewData() {
                 nitrate: formatAverage(avgNitrate, 1),
                 phosphate: formatAverage(avgPhosphate, 2),
                 levelIn: formatAverage(avgLevelIn, 1),
-                levelOut: formatAverage(avgLevelOut, 1)
+                levelOut: formatAverage(avgLevelOut, 1),
+                postPh: post.ph,
+                postSs: post.ss,
+                postNitrite: post.nitrite,
+                postNitrate: post.nitrate,
+                postPhosphate: post.phosphate,
+                postLevelIn: post.levelIn,
+                postLevelOut: post.levelOut
             };
         });
 }
@@ -651,42 +956,75 @@ function generateHistory() {
 }
 
 function initHistoryChart() {
-    const ctx = document.getElementById('historyChart').getContext('2d');
-    state.historyChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [
-                { label: 'pH', data: [], borderColor: '#38bdf8', borderWidth: 2, tension: 0.4 },
-                { label: 'DO (mg/L)', data: [], borderColor: '#2dd4bf', borderWidth: 2, tension: 0.4 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: '#94a3b8' } } },
-            scales: {
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+    const preEl = document.getElementById('historyChart');
+    if (preEl) {
+        const ctx = preEl.getContext('2d');
+        state.historyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { label: 'pH', data: [], borderColor: '#38bdf8', borderWidth: 2, tension: 0.4 },
+                    { label: 'DO (mg/L)', data: [], borderColor: '#2dd4bf', borderWidth: 2, tension: 0.4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#94a3b8' } } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
             }
-        }
-    });
+        });
+    }
+
+    const postEl = document.getElementById('historyChartPost');
+    if (postEl) {
+        const postCtx = postEl.getContext('2d');
+        state.historyChartPost = new Chart(postCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { label: 'Post pH', data: [], borderColor: '#f59e0b', borderWidth: 2, tension: 0.4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#94a3b8' } } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+    }
     refreshHistoryChart();
 }
 
 function refreshHistoryChart() {
-    if (!state.historyChart) return;
     const viewData = getHistoryViewData().slice().reverse();
-    state.historyChart.data.labels = viewData.map(d => d.chartLabel);
-    state.historyChart.data.datasets[0].data = viewData.map(d => d.chartPh);
-    state.historyChart.data.datasets[1].data = viewData.map(d => d.chartDo);
-    state.historyChart.update();
+    if (state.historyChart) {
+        state.historyChart.data.labels = viewData.map(d => d.chartLabel);
+        state.historyChart.data.datasets[0].data = viewData.map(d => d.chartPh);
+        state.historyChart.data.datasets[1].data = viewData.map(d => d.chartDo);
+        state.historyChart.update();
+    }
+    if (state.historyChartPost) {
+        state.historyChartPost.data.labels = viewData.map(d => d.chartLabel);
+        state.historyChartPost.data.datasets[0].data = viewData.map(d => d.chartPostPh);
+        state.historyChartPost.update();
+    }
 }
 
 function renderTable() {
     const data = getHistoryViewData();
     const tbody = document.getElementById('history-table-body');
-    tbody.innerHTML = data.slice(0, 10).map(row => `
+    if (tbody) {
+        tbody.innerHTML = data.slice(0, 10).map(row => `
         <tr>
             <td>${row.label}</td>
             <td><span style="color:#38bdf8">${row.ph}</span></td>
@@ -698,13 +1036,29 @@ function renderTable() {
             <td>${row.levelIn} / ${row.levelOut}</td>
         </tr>
     `).join('');
+    }
+
+    const postTbody = document.getElementById('history-table-post-body');
+    if (postTbody) {
+        postTbody.innerHTML = data.slice(0, 10).map(row => `
+        <tr>
+            <td>${row.label}</td>
+            <td><span style="color:#f59e0b">${row.postPh}</span></td>
+            <td>${row.postSs}</td>
+            <td>${row.postNitrite}</td>
+            <td>${row.postNitrate}</td>
+            <td>${row.postPhosphate}</td>
+            <td>${row.postLevelIn} / ${row.postLevelOut}</td>
+        </tr>
+    `).join('');
+    }
 }
 
 function exportCSV() {
     const viewData = getHistoryViewData();
-    const header = ['Timestamp,pH,DO,SS,Nitrite,Nitrate,Phosphate,Level In,Level Out'];
+    const header = ['Timestamp,pH,DO,SS,Nitrite,Nitrate,Phosphate,Level In,Level Out,Post pH,Post SS,Post Nitrite,Post Nitrate,Post Phosphate,Post Level In,Post Level Out'];
     const rows = viewData.map(d =>
-        `"${String(d.label).replace(/"/g, '""')}",${d.ph},${d.do},${d.ss},${d.nitrite},${d.nitrate},${d.phosphate},${d.levelIn},${d.levelOut}`
+        `"${String(d.label).replace(/"/g, '""')}",${d.ph},${d.do},${d.ss},${d.nitrite},${d.nitrate},${d.phosphate},${d.levelIn},${d.levelOut},${d.postPh},${d.postSs},${d.postNitrite},${d.postNitrate},${d.postPhosphate},${d.postLevelIn},${d.postLevelOut}`
     );
     const csv = header.concat(rows).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -792,6 +1146,78 @@ function deleteDevice(id) {
 }
 
 // --- User Management ---
+function getHospitalLabel(hospital) {
+    if (hospital === 'pranangklao') return t('users.hospitalPranangklao');
+    return t('users.hospitalPranangklao');
+}
+
+function updateUserRequestBadge() {
+    const countEl = document.getElementById('user-request-count');
+    if (!countEl) return;
+
+    const count = state.pendingUsers.length;
+    countEl.textContent = String(count);
+    countEl.classList.toggle('hidden', count === 0);
+}
+
+function formatRequestDate(timestamp) {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return '-';
+    const locale = state.language === 'th' ? 'th-TH' : 'en-US';
+    return date.toLocaleString(locale, {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function showUsersListPanel() {
+    document.getElementById('users-list-panel')?.classList.remove('hidden');
+    document.getElementById('user-requests-panel')?.classList.add('hidden');
+}
+
+function showUserRequestsPanel() {
+    const listPanel = document.getElementById('users-list-panel');
+    const requestPanel = document.getElementById('user-requests-panel');
+    if (!listPanel || !requestPanel) return;
+
+    const requestIsHidden = requestPanel.classList.contains('hidden');
+    listPanel.classList.toggle('hidden', requestIsHidden);
+    requestPanel.classList.toggle('hidden', !requestIsHidden);
+
+    if (requestIsHidden) renderPendingUsers();
+}
+
+function renderPendingUsers() {
+    const list = document.getElementById('user-request-list');
+    if (!list) return;
+
+    updateUserRequestBadge();
+
+    if (!state.pendingUsers.length) {
+        list.innerHTML = `<div class="glass-card request-empty">${t('users.pendingEmpty')}</div>`;
+        return;
+    }
+
+    list.innerHTML = state.pendingUsers.map((u) => `
+        <div class="glass-card device-card">
+            <div class="user-role role-user">${t('users.pendingStatus')}</div>
+            <h3>${u.name}</h3>
+            <p style="color:var(--text-muted); font-size:14px; margin-bottom:10px; overflow-wrap:anywhere;">${u.email}</p>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:8px;">${getHospitalLabel(u.hospital || 'pranangklao')}</p>
+            <p style="color:var(--text-muted); font-size:12px;">
+                ${t('users.requestDate')}: ${formatRequestDate(u.requestedAt)}
+            </p>
+            <div style="margin-top:20px; display:flex; gap:8px;">
+                <button class="btn btn-primary" style="flex:1" onclick="acceptPendingUser(${u.id})">${t('users.accept')}</button>
+                <button class="btn btn-ghost" style="flex:1; color:#f87171; border-color:rgba(248,113,113,0.4);" onclick="rejectPendingUser(${u.id})">${t('users.reject')}</button>
+            </div>
+        </div>
+    `).join('');
+}
+
 function renderUsers() {
     const list = document.getElementById('user-list');
     list.innerHTML = state.users.map(u => `
@@ -799,7 +1225,7 @@ function renderUsers() {
             <div class="user-role role-${u.role}">${u.role.toUpperCase()}</div>
             <h3>${u.name}</h3>
             <p style="color:var(--text-muted); font-size:14px; margin-bottom:10px; overflow-wrap:anywhere;">${u.email}</p>
-            <p style="color:var(--text-muted); font-size:13px; margin-bottom:10px;">${(u.hospital || DEFAULT_HOSPITAL) === DEFAULT_HOSPITAL ? t('users.hospitalPranangklao').replace('&#10003; ', '').replace('✓ ', '') : u.hospital}</p>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:10px;">${getHospitalLabel(u.hospital || 'pranangklao')}</p>
             <div style="margin-top:20px; display:flex; gap:8px;">
                 <button class="btn btn-ghost" style="flex:1" onclick="openUserModal(${u.id})">${t('users.editPermission')}</button>
                 <button class="btn btn-ghost" style="color:#f87171" onclick="deleteUser(${u.id})">
@@ -809,28 +1235,55 @@ function renderUsers() {
         </div>
     `).join('');
     lucide.createIcons();
+    updateUserRequestBadge();
+}
+
+function acceptPendingUser(id) {
+    const pendingUser = state.pendingUsers.find((u) => u.id === id);
+    if (!pendingUser) return;
+
+    const newUserId = state.users.length ? Math.max(...state.users.map((u) => u.id)) + 1 : 1;
+    state.users.push({
+        id: newUserId,
+        name: pendingUser.name,
+        email: pendingUser.email,
+        role: 'user',
+        hospital: pendingUser.hospital || 'pranangklao'
+    });
+    state.pendingUsers = state.pendingUsers.filter((u) => u.id !== id);
+
+    renderUsers();
+    renderPendingUsers();
+    addLog(`${t('log.adminAcceptedUser')} <strong>${pendingUser.name}</strong>.`, 'CREATE USER');
+}
+
+function rejectPendingUser(id) {
+    const pendingUser = state.pendingUsers.find((u) => u.id === id);
+    if (!pendingUser) return;
+
+    state.pendingUsers = state.pendingUsers.filter((u) => u.id !== id);
+    renderPendingUsers();
+    updateUserRequestBadge();
+    addLog(`${t('log.adminRejectedUser')} <strong>${pendingUser.name}</strong>.`, 'DELETE USER');
 }
 
 function openUserModal(id = null) {
-    ensureUserHospitalField();
     const modal = document.getElementById('user-modal');
     modal.classList.remove('hidden');
     
     if (id) {
         const user = state.users.find(u => u.id === id);
-        document.getElementById('user-modal-title').textContent = t('users.editPermission');
+        document.getElementById('user-modal-title').textContent = t('users.modalEditTitle');
         document.getElementById('user-id').value = user.id;
         document.getElementById('user-name').value = user.name;
         document.getElementById('user-email').value = user.email;
         document.getElementById('user-role').value = user.role;
-        const hospitalSelect = document.getElementById('user-hospital');
-        if (hospitalSelect) hospitalSelect.value = user.hospital || DEFAULT_HOSPITAL;
+        document.getElementById('user-hospital').value = user.hospital || 'pranangklao';
     } else {
         document.getElementById('user-modal-title').textContent = t('users.modalAddTitle');
         document.getElementById('user-form').reset();
         document.getElementById('user-id').value = '';
-        const hospitalSelect = document.getElementById('user-hospital');
-        if (hospitalSelect) hospitalSelect.value = DEFAULT_HOSPITAL;
+        document.getElementById('user-hospital').value = 'pranangklao';
     }
 }
 
@@ -840,12 +1293,11 @@ function closeUserModal() {
 
 function handleUserSubmit(e) {
     e.preventDefault();
-    ensureUserHospitalField();
     const id = document.getElementById('user-id').value;
     const name = document.getElementById('user-name').value;
     const email = document.getElementById('user-email').value;
     const role = document.getElementById('user-role').value;
-    const hospital = document.getElementById('user-hospital')?.value || DEFAULT_HOSPITAL;
+    const hospital = document.getElementById('user-hospital').value;
     
     if (id) {
         const idx = state.users.findIndex(u => u.id == id);
@@ -925,12 +1377,6 @@ function updateDashboardFromRecord(record) {
 
     setText('val-ph', record.ph);
     setText('val-do', record.do);
-    setText('val-ss', record.ss);
-    setText('val-nitrite', record.nitrite);
-    setText('val-nitrate', record.nitrate);
-    setText('val-phosphate', record.phosphate);
-    setText('val-level-in', record.levelIn);
-    setText('val-level-out', record.levelOut);
 
     const phNum = Number(record.ph);
     const doNum = Number(record.do);
@@ -950,11 +1396,14 @@ function updateDashboardFromRecord(record) {
     if (Number.isFinite(phNum) && Number.isFinite(doNum)) {
         updateSystemStatus(phNum, doNum);
     }
+
+    syncDashboardOtherParamsWithHistory(phNum);
 }
 
 function handleManualSubmit(e) {
     e.preventDefault();
-    const fieldConfigs = [
+    const mode = getManualTreatmentMode();
+    const fieldConfigsAll = [
         { key: 'ph', inputId: 'manual-ph', saveId: 'save-ph', label: t('field.ph'), format: (v) => Number(v).toFixed(2) },
         { key: 'do', inputId: 'manual-do', saveId: 'save-do', label: t('field.do'), format: (v) => Number(v).toFixed(2) },
         { key: 'ss', inputId: 'manual-ss', saveId: 'save-ss', label: t('field.ss'), format: (v) => Number(v).toFixed(0) },
@@ -964,8 +1413,9 @@ function handleManualSubmit(e) {
         { key: 'levelIn', inputId: 'manual-level-in', saveId: 'save-level-in', label: t('field.levelIn'), format: (v) => Number(v).toFixed(1) },
         { key: 'levelOut', inputId: 'manual-level-out', saveId: 'save-level-out', label: t('field.levelOut'), format: (v) => Number(v).toFixed(1) }
     ];
+    const fieldConfigs = mode === 'before' ? fieldConfigsAll.filter((f) => f.key !== 'do') : fieldConfigsAll;
 
-    const selectedFields = fieldConfigs.filter(f => document.getElementById(f.saveId)?.checked);
+    const selectedFields = fieldConfigs.filter((f) => document.getElementById(f.saveId)?.checked);
     if (!selectedFields.length) {
         alert(t('alert.selectOne'));
         return;
@@ -980,7 +1430,14 @@ function handleManualSubmit(e) {
         nitrate: '-',
         phosphate: '-',
         levelIn: '-',
-        levelOut: '-'
+        levelOut: '-',
+        postPh: '-',
+        postSs: '-',
+        postNitrite: '-',
+        postNitrate: '-',
+        postPhosphate: '-',
+        postLevelIn: '-',
+        postLevelOut: '-'
     };
 
     for (const field of selectedFields) {
@@ -996,7 +1453,70 @@ function handleManualSubmit(e) {
             alert(`${t('alert.invalidValue')} ${field.label}.`);
             return;
         }
-        newRecord[field.key] = field.format(numericValue);
+        if (mode === 'before') {
+            const postMap = {
+                ph: 'postPh',
+                ss: 'postSs',
+                nitrite: 'postNitrite',
+                nitrate: 'postNitrate',
+                phosphate: 'postPhosphate',
+                levelIn: 'postLevelIn',
+                levelOut: 'postLevelOut'
+            };
+            newRecord[postMap[field.key]] = field.format(numericValue);
+        } else {
+            newRecord[field.key] = field.format(numericValue);
+        }
+    }
+
+    if (mode === 'before') {
+        const postToPreMap = {
+            postPh: 'ph',
+            postSs: 'ss',
+            postNitrite: 'nitrite',
+            postNitrate: 'nitrate',
+            postPhosphate: 'phosphate',
+            postLevelIn: 'levelIn',
+            postLevelOut: 'levelOut'
+        };
+        for (const [postKey, preKey] of Object.entries(postToPreMap)) {
+            if (newRecord[postKey] === '-') continue;
+            const inferInput = {
+                ph: postKey === 'postPh' ? newRecord[postKey] : undefined,
+                ss: postKey === 'postSs' ? newRecord[postKey] : undefined,
+                nitrite: postKey === 'postNitrite' ? newRecord[postKey] : undefined,
+                nitrate: postKey === 'postNitrate' ? newRecord[postKey] : undefined,
+                phosphate: postKey === 'postPhosphate' ? newRecord[postKey] : undefined,
+                levelIn: postKey === 'postLevelIn' ? newRecord[postKey] : undefined,
+                levelOut: postKey === 'postLevelOut' ? newRecord[postKey] : undefined
+            };
+            const inferred = calculatePreTreatmentFromPostMetrics(inferInput);
+            newRecord[preKey] = inferred[preKey];
+        }
+    } else {
+        const preToPostMap = {
+            ph: 'postPh',
+            ss: 'postSs',
+            nitrite: 'postNitrite',
+            nitrate: 'postNitrate',
+            phosphate: 'postPhosphate',
+            levelIn: 'postLevelIn',
+            levelOut: 'postLevelOut'
+        };
+        for (const [preKey, postKey] of Object.entries(preToPostMap)) {
+            if (newRecord[preKey] === '-') continue;
+            const post = calculatePostTreatmentMetrics({ [preKey]: newRecord[preKey] }, false);
+            const mapResult = {
+                postPh: post.ph,
+                postSs: post.ss,
+                postNitrite: post.nitrite,
+                postNitrate: post.nitrate,
+                postPhosphate: post.phosphate,
+                postLevelIn: post.levelIn,
+                postLevelOut: post.levelOut
+            };
+            newRecord[postKey] = mapResult[postKey];
+        }
     }
 
     state.historyData = [newRecord, ...state.historyData].slice(0, 30);
@@ -1006,20 +1526,3 @@ function handleManualSubmit(e) {
     alert(t('alert.savedCount').replace('{count}', selectedFields.length));
     e.target.reset();
 }
-// ===== LIFF LOGIN =====
-async function initLiff() {
-    await liff.init({ liffId: "2009293042-5xf0uyqH" });
-
-    if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
-    }
-
-    const profile = await liff.getProfile();
-    console.log("LINE User:", profile.userId);
-
-    localStorage.setItem("lineUserId", profile.userId);
-
-};
-
-
