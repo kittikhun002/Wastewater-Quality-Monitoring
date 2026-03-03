@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20260303">
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -382,6 +382,12 @@
                                 <option value="viewer" data-i18n="users.roleViewer">Viewer</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label data-i18n="users.hospital">Hospital Affiliation</label>
+                            <select id="user-hospital" class="glass-input" required>
+                                <option value="pranangklao-hospital" data-i18n="users.hospitalPranangklao">&#10003; เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="modal-actions">
                         <button type="button" class="btn btn-ghost" onclick="closeUserModal()" data-i18n="common.cancel">Cancel</button>
@@ -391,10 +397,12 @@
             </div>
         </div>
     </div>
-
-    <script src="script.js"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="script.js?v=20260303"></script>
 </body>
 </html>
+
+
 
 
 
