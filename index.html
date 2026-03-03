@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="style.css?v=20260303">
+    <link rel="stylesheet" href="style.css">
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -107,55 +107,104 @@
                         </div>
                     </div>
                     
-                    <div class="dashboard-grid">
-                        <div class="glass-card gauge-card">
-                            <h3>pH Level</h3>
-                            <div class="gauge-container" style="position: relative; height: 180px; width:180px; margin: 0 auto;">
-                                <canvas id="phCanvas"></canvas>
-                                <div style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                                    <span class="value" id="val-ph" style="font-size: 2rem; font-weight: bold;">7.0</span>
-                                    <span class="unit" style="display:block; font-size: 0.8rem; color: #94a3b8;">pH</span>
+                    <div class="dashboard-section">
+                        <h2 class="dashboard-section-title" data-i18n="section.set1">หลังบำบัด</h2>
+                        <div class="dashboard-grid">
+                            <div class="glass-card gauge-card">
+                                <h3>pH Level</h3>
+                                <div class="gauge-container" style="position: relative; height: 180px; width:180px; margin: 0 auto;">
+                                    <canvas id="phCanvas"></canvas>
+                                    <div style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                        <span class="value" id="val-ph" style="font-size: 2rem; font-weight: bold;">7.0</span>
+                                        <span class="unit" style="display:block; font-size: 0.8rem; color: #94a3b8;">pH</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="glass-card gauge-card">
+                                <h3>Dissolved Oxygen</h3>
+                                <div class="gauge-container" style="position: relative; height: 180px; width:180px; margin: 0 auto;">
+                                    <canvas id="doCanvas"></canvas>
+                                    <div style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                        <span class="value" id="val-do" style="font-size: 2rem; font-weight: bold;">8.5</span>
+                                        <span class="unit" style="display:block; font-size: 0.8rem; color: #94a3b8;">mg/L</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="glass-card params-card">
+                                <h3><i data-lucide="activity"></i> Other Parameters</h3>
+                                <div class="params-grid">
+                                    <div class="param-box">
+                                        <span class="label">SS/TSS</span>
+                                        <span class="val" id="val-ss">25</span> mg/L
+                                    </div>
+                                    <div class="param-box">
+                                        <span class="label">Nitrite</span>
+                                        <span class="val" id="val-nitrite">0.5</span> mg/L
+                                    </div>
+                                    <div class="param-box">
+                                        <span class="label">Nitrate</span>
+                                        <span class="val" id="val-nitrate">12</span> mg/L
+                                    </div>
+                                    <div class="param-box">
+                                        <span class="label">Phosphate</span>
+                                        <span class="val" id="val-phosphate">2.1</span> mg/L
+                                    </div>
+                                    <div class="param-box">
+                                        <span class="label">Water In</span>
+                                        <span class="val" id="val-level-in">80</span> cm
+                                    </div>
+                                    <div class="param-box">
+                                        <span class="label">Water Out</span>
+                                        <span class="val" id="val-level-out">75</span> cm
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="glass-card gauge-card">
-                            <h3>Dissolved Oxygen</h3>
-                            <div class="gauge-container" style="position: relative; height: 180px; width:180px; margin: 0 auto;">
-                                <canvas id="doCanvas"></canvas>
-                                <div style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                                    <span class="value" id="val-do" style="font-size: 2rem; font-weight: bold;">8.5</span>
-                                    <span class="unit" style="display:block; font-size: 0.8rem; color: #94a3b8;">mg/L</span>
+                    <div class="dashboard-section">
+                        <h2 class="dashboard-section-title" data-i18n="section.set2">ก่อนบำบัด</h2>
+                        <div class="dashboard-grid dashboard-grid-two">
+                            <div class="glass-card gauge-card">
+                                <h3>pH Level</h3>
+                                <div class="gauge-container" style="position: relative; height: 180px; width:180px; margin: 0 auto;">
+                                    <canvas id="phCanvas-post"></canvas>
+                                    <div style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                        <span class="value" id="val-ph-post" style="font-size: 2rem; font-weight: bold;">7.2</span>
+                                        <span class="unit" style="display:block; font-size: 0.8rem; color: #94a3b8;">pH</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="glass-card params-card">
-                            <h3><i data-lucide="activity"></i> Other Parameters</h3>
-                            <div class="params-grid">
-                                <div class="param-box">
-                                    <span class="label">SS/TSS</span>
-                                    <span class="val" id="val-ss">25</span> mg/L
-                                </div>
-                                <div class="param-box">
-                                    <span class="label">Nitrite</span>
-                                    <span class="val" id="val-nitrite">0.5</span> mg/L
-                                </div>
-                                <div class="param-box">
-                                    <span class="label">Nitrate</span>
-                                    <span class="val" id="val-nitrate">12</span> mg/L
-                                </div>
-                                <div class="param-box">
-                                    <span class="label">Phosphate</span>
-                                    <span class="val" id="val-phosphate">2.1</span> mg/L
-                                </div>
-                                <div class="param-box">
-                                    <span class="label">Water In</span>
-                                    <span class="val" id="val-level-in">80</span> cm
-                                </div>
-                                <div class="param-box">
-                                    <span class="label">Water Out</span>
-                                    <span class="val" id="val-level-out">75</span> cm
+                            <div class="glass-card params-card">
+                                <h3><i data-lucide="activity"></i> Other Parameters</h3>
+                                <div class="params-grid">
+                                    <div class="param-box">
+                                        <span class="label">SS/TSS</span>
+                                        <span class="val" id="val-ss-post">12</span> mg/L
+                                    </div>
+                                    <div class="param-box">
+                                        <span class="label">Nitrite</span>
+                                        <span class="val" id="val-nitrite-post">0.2</span> mg/L
+                                    </div>
+                                    <div class="param-box">
+                                        <span class="label">Nitrate</span>
+                                        <span class="val" id="val-nitrate-post">8</span> mg/L
+                                    </div>
+                                    <div class="param-box">
+                                        <span class="label">Phosphate</span>
+                                        <span class="val" id="val-phosphate-post">1.1</span> mg/L
+                                    </div>
+                                    <div class="param-box">
+                                        <span class="label">Water In</span>
+                                        <span class="val" id="val-level-in-post">78</span> cm
+                                    </div>
+                                    <div class="param-box">
+                                        <span class="label">Water Out</span>
+                                        <span class="val" id="val-level-out-post">72</span> cm
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -176,27 +225,56 @@
                             </button>
                         </div>
                     </div>
-                    <div class="glass-card chart-card">
-                        <canvas id="historyChart"></canvas>
+                    <div class="history-section">
+                        <h2 class="dashboard-section-title" data-i18n="section.set1">หลังบำบัด</h2>
+                        <div class="glass-card chart-card">
+                            <canvas id="historyChart"></canvas>
+                        </div>
+                        <div class="glass-card table-card">
+                            <h3>Data Logs</h3>
+                            <div class="table-responsive">
+                                <table id="history-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>pH</th>
+                                            <th>DO</th>
+                                            <th>SS</th>
+                                            <th>Nitrite</th>
+                                            <th>Nitrate</th>
+                                            <th>Phos.</th>
+                                            <th>Level (In/Out)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="history-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                    <div class="glass-card table-card">
-                        <h3>Data Logs</h3>
-                        <div class="table-responsive">
-                            <table id="history-table">
-                                <thead>
-                                    <tr>
-                                        <th>Timestamp</th>
-                                        <th>pH</th>
-                                        <th>DO</th>
-                                        <th>SS</th>
-                                        <th>Nitrite</th>
-                                        <th>Nitrate</th>
-                                        <th>Phos.</th>
-                                        <th>Level (In/Out)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="history-table-body"></tbody>
-                            </table>
+
+                    <div class="history-section">
+                        <h2 class="dashboard-section-title" data-i18n="section.set2">ก่อนบำบัด</h2>
+                        <div class="glass-card chart-card">
+                            <canvas id="historyChartPost"></canvas>
+                        </div>
+                        <div class="glass-card table-card">
+                            <h3>Data Logs</h3>
+                            <div class="table-responsive">
+                                <table id="history-table-post">
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>pH</th>
+                                            <th>SS</th>
+                                            <th>Nitrite</th>
+                                            <th>Nitrate</th>
+                                            <th>Phos.</th>
+                                            <th>Level (In/Out)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="history-table-post-body"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -211,6 +289,13 @@
                     <div class="glass-card form-card">
                         <form id="manual-form" onsubmit="handleManualSubmit(event)">
                             <div class="form-grid">
+                                <div class="form-group full-row">
+                                    <label for="manual-treatment-mode" data-i18n="manual.mode">บันทึกค่าชุดข้อมูล</label>
+                                    <select id="manual-treatment-mode" onchange="handleManualModeChange()">
+                                        <option value="before" data-i18n="manual.modeBefore">ก่อนบำบัด</option>
+                                        <option value="after" data-i18n="manual.modeAfter" selected>หลังบำบัด</option>
+                                    </select>
+                                </div>
                                 <div class="form-group">
                                     <div class="form-label-row">
                                         <label for="manual-ph" data-i18n="manual.ph">pH Level (0-14)</label>
@@ -218,7 +303,7 @@
                                     </div>
                                     <input type="number" id="manual-ph" step="0.01" min="0" max="14" placeholder="7.0">
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" id="manual-do-group">
                                     <div class="form-label-row">
                                         <label for="manual-do" data-i18n="manual.do">Dissolved Oxygen (mg/L)</label>
                                         <label class="save-toggle"><input type="checkbox" id="save-do" checked> <span data-i18n="manual.save">Save</span></label>
@@ -290,12 +375,27 @@
                 <div id="users-view" class="page-section">
                     <div class="page-header">
                         <h1 data-i18n="users.title">User Management</h1>
-                        <button class="btn btn-primary" onclick="openUserModal()">
-                            <i data-lucide="user-plus"></i> <span style="display:none; @media(min-width:600px){display:inline}" data-i18n="users.add">Add User</span>
-                        </button>
-                    </div>
-                    <div class="device-grid" id="user-list">
+                        <div class="actions">
+                            <button id="user-request-btn" class="btn btn-ghost notification-btn" onclick="showUserRequestsPanel()">
+                                <i data-lucide="bell"></i>
+                                <span data-i18n="users.notifications">Notifications</span>
+                                <span id="user-request-count" class="notification-count hidden">0</span>
+                            </button>
+                            <button class="btn btn-primary" onclick="openUserModal()">
+                                <i data-lucide="user-plus"></i> <span style="display:none; @media(min-width:600px){display:inline}" data-i18n="users.add">Add User</span>
+                            </button>
                         </div>
+                    </div>
+                    <div id="users-list-panel">
+                        <div class="device-grid" id="user-list"></div>
+                    </div>
+                    <div id="user-requests-panel" class="hidden">
+                        <div class="glass-card request-header-card">
+                            <h3 data-i18n="users.pendingTitle">Pending User Requests</h3>
+                            <p data-i18n="users.pendingSubtitle" style="color:var(--text-muted); margin-top:8px;">Review and accept new signup requests.</p>
+                        </div>
+                        <div class="device-grid" id="user-request-list"></div>
+                    </div>
                 </div>
 
                 <div id="logs-view" class="page-section">
@@ -384,8 +484,8 @@
                         </div>
                         <div class="form-group">
                             <label data-i18n="users.hospital">Hospital Affiliation</label>
-                            <select id="user-hospital" class="glass-input" required>
-                                <option value="pranangklao-hospital" data-i18n="users.hospitalPranangklao">&#10003; เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ</option>
+                            <select id="user-hospital" class="glass-input">
+                                <option value="pranangklao" data-i18n="users.hospitalPranangklao">Pranangklao Hospital</option>
                             </select>
                         </div>
                     </div>
@@ -397,12 +497,10 @@
             </div>
         </div>
     </div>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <script src="script.js?v=20260303"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
-
-
 
 
 
