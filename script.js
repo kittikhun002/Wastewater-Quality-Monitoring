@@ -447,14 +447,30 @@ function getHistorySortedByNewest() {
     return [...state.historyData].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 }
 
+function getHistoryRecordsByMode(mode) {
+    const afterFields = ['ph', 'do', 'ss', 'nitrite', 'nitrate', 'phosphate', 'levelIn', 'levelOut'];
+    const beforeFields = ['postPh', 'postSs', 'postNitrite', 'postNitrate', 'postPhosphate', 'postLevelIn', 'postLevelOut'];
+    const sourceFields = mode === 'before' ? beforeFields : afterFields;
+
+    return state.historyData.filter((record) => {
+        if (record?.mode === mode) return true;
+        if (record?.mode) return false;
+        return sourceFields.some((field) => Number.isFinite(Number(record?.[field])));
+    });
+}
+
+function getHistorySortedByNewestByMode(mode) {
+    return [...getHistoryRecordsByMode(mode)].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+}
+
 function getLatestSavedOtherParamsFromHistory() {
     const fields = ['ss', 'nitrite', 'nitrate', 'phosphate', 'levelIn', 'levelOut'];
     const latest = {};
-    const sorted = getHistorySortedByNewest();
+    const latestRecord = getHistorySortedByNewestByMode('after')[0];
+    if (!latestRecord) return fields.reduce((acc, field) => ({ ...acc, [field]: null }), {});
 
     for (const field of fields) {
-        const row = sorted.find((item) => Number.isFinite(Number(item?.[field])));
-        latest[field] = row ? row[field] : null;
+        latest[field] = latestRecord[field] ?? null;
     }
 
     return latest;
@@ -531,58 +547,50 @@ function calculatePreTreatmentFromPostMetrics(postSource = {}) {
 
 function getPostMetricsFromRecord(record) {
     const pickExplicit = (raw, digits) => {
-        if (raw === undefined) return null;
         const numeric = Number(raw);
-        if (Number.isFinite(numeric)) return numeric.toFixed(digits);
-        return '-';
-    };
-    const computed = calculatePostTreatmentMetrics(record, false);
-    const pick = (raw, fallback, digits) => {
-        const explicit = pickExplicit(raw, digits);
-        return explicit === null ? fallback : explicit;
+        return Number.isFinite(numeric) ? numeric.toFixed(digits) : '-';
     };
     return {
-        ph: pick(record?.postPh, computed.ph, 2),
-        ss: pick(record?.postSs, computed.ss, 0),
-        nitrite: pick(record?.postNitrite, computed.nitrite, 3),
-        nitrate: pick(record?.postNitrate, computed.nitrate, 1),
-        phosphate: pick(record?.postPhosphate, computed.phosphate, 2),
-        levelIn: pick(record?.postLevelIn, computed.levelIn, 1),
-        levelOut: pick(record?.postLevelOut, computed.levelOut, 1)
+        ph: pickExplicit(record?.postPh, 2),
+        ss: pickExplicit(record?.postSs, 0),
+        nitrite: pickExplicit(record?.postNitrite, 3),
+        nitrate: pickExplicit(record?.postNitrate, 1),
+        phosphate: pickExplicit(record?.postPhosphate, 2),
+        levelIn: pickExplicit(record?.postLevelIn, 1),
+        levelOut: pickExplicit(record?.postLevelOut, 1)
     };
 }
 
 function getLatestSavedPreValue(field, fallbackValue = null) {
-    const sorted = getHistorySortedByNewest();
+    const sorted = getHistorySortedByNewestByMode('after');
     const row = sorted.find((item) => Number.isFinite(Number(item?.[field])));
     return row ? row[field] : fallbackValue;
 }
 
 function getLatestSavedPostParamsFromHistory() {
-    const fields = ['ph', 'ss', 'nitrite', 'nitrate', 'phosphate', 'levelIn', 'levelOut'];
+    const fields = [
+        { key: 'ph', recordKey: 'postPh', digits: 2 },
+        { key: 'ss', recordKey: 'postSs', digits: 0 },
+        { key: 'nitrite', recordKey: 'postNitrite', digits: 3 },
+        { key: 'nitrate', recordKey: 'postNitrate', digits: 1 },
+        { key: 'phosphate', recordKey: 'postPhosphate', digits: 2 },
+        { key: 'levelIn', recordKey: 'postLevelIn', digits: 1 },
+        { key: 'levelOut', recordKey: 'postLevelOut', digits: 1 }
+    ];
     const latest = {};
-    const sorted = getHistorySortedByNewest();
+    const latestRecord = getHistorySortedByNewestByMode('before')[0];
+    if (!latestRecord) return fields.reduce((acc, field) => ({ ...acc, [field.key]: null }), {});
 
     for (const field of fields) {
-        const row = sorted.find((item) => Number.isFinite(Number(getPostMetricsFromRecord(item)?.[field])));
-        latest[field] = row ? getPostMetricsFromRecord(row)[field] : null;
+        const numeric = Number(latestRecord[field.recordKey]);
+        latest[field.key] = Number.isFinite(numeric) ? numeric.toFixed(field.digits) : '-';
     }
     return latest;
 }
 
 function syncDashboardOtherParamsWithHistory(phForPost = null) {
-    const latestRecord = getHistorySortedByNewest()[0] || null;
-    const latestPre = latestRecord
-        ? {
-            ss: latestRecord.ss,
-            nitrite: latestRecord.nitrite,
-            nitrate: latestRecord.nitrate,
-            phosphate: latestRecord.phosphate,
-            levelIn: latestRecord.levelIn,
-            levelOut: latestRecord.levelOut
-        }
-        : getLatestSavedOtherParamsFromHistory();
-    const latestPost = latestRecord ? getPostMetricsFromRecord(latestRecord) : getLatestSavedPostParamsFromHistory();
+    const latestPre = getLatestSavedOtherParamsFromHistory();
+    const latestPost = getLatestSavedPostParamsFromHistory();
     const setText = (id, value) => {
         if (value === null || value === undefined) return;
         const element = document.getElementById(id);
@@ -604,16 +612,12 @@ function syncDashboardOtherParamsWithHistory(phForPost = null) {
     setText('val-level-in-post', latestPost.levelIn);
     setText('val-level-out-post', latestPost.levelOut);
 
-    const postPh = Number(latestPost.ph);
+    const postPh = Number(latestPost?.ph);
     if (state.gauges.phPost && Number.isFinite(postPh)) {
         state.gauges.phPost.data.datasets[0].data = [postPh, 14 - postPh];
         state.gauges.phPost.data.datasets[0].backgroundColor[0] = postPh < 6 || postPh > 8.5 ? '#f87171' : '#38bdf8';
         state.gauges.phPost.update();
-        return;
     }
-
-    const currentPh = Number.isFinite(Number(phForPost)) ? Number(phForPost) : Number(document.getElementById('val-ph')?.textContent);
-    applyPostTreatmentToDashboard({ ph: currentPh, ...latestPre }, false);
 }
 
 function applyPostTreatmentToDashboard(source, useJitter = false) {
@@ -719,20 +723,18 @@ function initGaugeCharts() {
 
 function startDashboardUpdates() {
     const syncDashboardFromLatestHistory = () => {
-        const latestPh = getLatestSavedPreValue('ph', null);
-        const latestDo = getLatestSavedPreValue('do', null);
+        const latestAfter = getHistorySortedByNewestByMode('after')[0] || null;
+        const latestPhRaw = latestAfter?.ph;
+        const latestDoRaw = latestAfter?.do;
+        const ph = Number(latestPhRaw);
+        const doVal = Number(latestDoRaw);
 
-        const ph = latestPh !== null ? Number(latestPh) : Number(document.getElementById('val-ph')?.textContent);
-        const doVal = latestDo !== null ? Number(latestDo) : Number(document.getElementById('val-do')?.textContent);
-
-        const setText = (id, value, digits = 2) => {
-            if (!Number.isFinite(value)) return;
+        const setTextRaw = (id, value) => {
             const element = document.getElementById(id);
-            if (element) element.textContent = value.toFixed(digits);
+            if (element && value !== undefined && value !== null) element.textContent = value;
         };
-
-        setText('val-ph', ph, 2);
-        setText('val-do', doVal, 2);
+        setTextRaw('val-ph', Number.isFinite(ph) ? ph.toFixed(2) : '-');
+        setTextRaw('val-do', Number.isFinite(doVal) ? doVal.toFixed(2) : '-');
 
         if (state.gauges.ph && Number.isFinite(ph)) {
             state.gauges.ph.data.datasets[0].data = [ph, 14 - ph];
@@ -827,46 +829,71 @@ function setHistoryViewMode(mode) {
     refreshHistoryView();
 }
 
-function getHistoryViewData() {
-    const sorted = [...state.historyData].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+function getHistoryViewData(datasetMode = 'after') {
+    const sorted = getHistorySortedByNewestByMode(datasetMode);
+    const isBefore = datasetMode === 'before';
+    const mapField = (row, afterKey, beforeKey) => (isBefore ? row[beforeKey] : row[afterKey]);
+
     if (state.historyViewMode === 'daily') {
         return sorted.map((row) => {
-            const post = getPostMetricsFromRecord(row);
+            const ph = mapField(row, 'ph', 'postPh');
+            const doVal = mapField(row, 'do', 'do');
+            const ss = mapField(row, 'ss', 'postSs');
             return {
-                ...row,
-                postPh: post.ph,
-                postSs: post.ss,
-                postNitrite: post.nitrite,
-                postNitrate: post.nitrate,
-                postPhosphate: post.phosphate,
-                postLevelIn: post.levelIn,
-                postLevelOut: post.levelOut,
                 label: formatHistoryTimestamp(row.timestamp),
                 chartLabel: formatHistoryDayLabel(row.timestamp),
-                chartPh: toHistoryNumber(row.ph),
-                chartDo: toHistoryNumber(row.do),
-                chartPostPh: toHistoryNumber(post.ph),
-                chartPostSs: toHistoryNumber(post.ss)
+                ph: Number.isFinite(Number(ph)) ? Number(ph).toFixed(2) : '-',
+                do: Number.isFinite(Number(doVal)) ? Number(doVal).toFixed(2) : '-',
+                ss: Number.isFinite(Number(ss)) ? Number(ss).toFixed(0) : '-',
+                nitrite: Number.isFinite(Number(mapField(row, 'nitrite', 'postNitrite'))) ? Number(mapField(row, 'nitrite', 'postNitrite')).toFixed(3) : '-',
+                nitrate: Number.isFinite(Number(mapField(row, 'nitrate', 'postNitrate'))) ? Number(mapField(row, 'nitrate', 'postNitrate')).toFixed(1) : '-',
+                phosphate: Number.isFinite(Number(mapField(row, 'phosphate', 'postPhosphate'))) ? Number(mapField(row, 'phosphate', 'postPhosphate')).toFixed(2) : '-',
+                levelIn: Number.isFinite(Number(mapField(row, 'levelIn', 'postLevelIn'))) ? Number(mapField(row, 'levelIn', 'postLevelIn')).toFixed(1) : '-',
+                levelOut: Number.isFinite(Number(mapField(row, 'levelOut', 'postLevelOut'))) ? Number(mapField(row, 'levelOut', 'postLevelOut')).toFixed(1) : '-',
+                chartPh: toHistoryNumber(ph),
+                chartDo: toHistoryNumber(doVal)
             };
         });
     }
 
     const monthBuckets = new Map();
-    const numberFields = ['ph', 'do', 'ss', 'nitrite', 'nitrate', 'phosphate', 'levelIn', 'levelOut'];
+    const fields = isBefore
+        ? [
+            { out: 'ph', src: 'postPh' },
+            { out: 'ss', src: 'postSs' },
+            { out: 'nitrite', src: 'postNitrite' },
+            { out: 'nitrate', src: 'postNitrate' },
+            { out: 'phosphate', src: 'postPhosphate' },
+            { out: 'levelIn', src: 'postLevelIn' },
+            { out: 'levelOut', src: 'postLevelOut' }
+        ]
+        : [
+            { out: 'ph', src: 'ph' },
+            { out: 'do', src: 'do' },
+            { out: 'ss', src: 'ss' },
+            { out: 'nitrite', src: 'nitrite' },
+            { out: 'nitrate', src: 'nitrate' },
+            { out: 'phosphate', src: 'phosphate' },
+            { out: 'levelIn', src: 'levelIn' },
+            { out: 'levelOut', src: 'levelOut' }
+        ];
+
     for (const row of sorted) {
         const date = new Date(row.timestamp);
         if (Number.isNaN(date.getTime())) continue;
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         if (!monthBuckets.has(key)) {
+            const valueMap = {};
+            for (const field of fields) valueMap[field.out] = [];
             monthBuckets.set(key, {
                 timestamp: new Date(date.getFullYear(), date.getMonth(), 1).toISOString(),
-                values: numberFields.reduce((acc, field) => ({ ...acc, [field]: [] }), {})
+                values: valueMap
             });
         }
         const bucket = monthBuckets.get(key);
-        for (const field of numberFields) {
-            const numeric = toHistoryNumber(row[field]);
-            if (numeric !== null) bucket.values[field].push(numeric);
+        for (const field of fields) {
+            const numeric = toHistoryNumber(row[field.src]);
+            if (numeric !== null) bucket.values[field.out].push(numeric);
         }
     }
 
@@ -878,31 +905,20 @@ function getHistoryViewData() {
     return [...monthBuckets.values()]
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
         .map((bucket) => {
-            const avgPh = average(bucket.values.ph);
-            const avgDo = average(bucket.values.do);
-            const avgSs = average(bucket.values.ss);
-            const avgNitrite = average(bucket.values.nitrite);
-            const avgNitrate = average(bucket.values.nitrate);
-            const avgPhosphate = average(bucket.values.phosphate);
-            const avgLevelIn = average(bucket.values.levelIn);
-            const avgLevelOut = average(bucket.values.levelOut);
-            const post = calculatePostTreatmentMetrics({
-                ph: avgPh,
-                ss: avgSs,
-                nitrite: avgNitrite,
-                nitrate: avgNitrate,
-                phosphate: avgPhosphate,
-                levelIn: avgLevelIn,
-                levelOut: avgLevelOut
-            }, false);
+            const avgPh = average(bucket.values.ph || []);
+            const avgDo = average(bucket.values.do || []);
+            const avgSs = average(bucket.values.ss || []);
+            const avgNitrite = average(bucket.values.nitrite || []);
+            const avgNitrate = average(bucket.values.nitrate || []);
+            const avgPhosphate = average(bucket.values.phosphate || []);
+            const avgLevelIn = average(bucket.values.levelIn || []);
+            const avgLevelOut = average(bucket.values.levelOut || []);
 
             return {
                 label: formatHistoryMonthLabel(bucket.timestamp),
                 chartLabel: formatHistoryMonthLabel(bucket.timestamp),
                 chartPh: avgPh,
                 chartDo: avgDo,
-                chartPostPh: toHistoryNumber(post.ph),
-                chartPostSs: toHistoryNumber(post.ss),
                 ph: formatAverage(avgPh, 2),
                 do: formatAverage(avgDo, 2),
                 ss: formatAverage(avgSs, 0),
@@ -910,14 +926,7 @@ function getHistoryViewData() {
                 nitrate: formatAverage(avgNitrate, 1),
                 phosphate: formatAverage(avgPhosphate, 2),
                 levelIn: formatAverage(avgLevelIn, 1),
-                levelOut: formatAverage(avgLevelOut, 1),
-                postPh: post.ph,
-                postSs: post.ss,
-                postNitrite: post.nitrite,
-                postNitrate: post.nitrate,
-                postPhosphate: post.phosphate,
-                postLevelIn: post.levelIn,
-                postLevelOut: post.levelOut
+                levelOut: formatAverage(avgLevelOut, 1)
             };
         });
 }
@@ -936,11 +945,12 @@ function generateHistory() {
     const data = [];
     const now = new Date();
     for (let i = 29; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(d.getDate() - i);
-        d.setHours(8 + Math.floor(Math.random() * 10), Math.floor(Math.random() * 60), 0, 0);
+        const afterDate = new Date(now);
+        afterDate.setDate(afterDate.getDate() - i);
+        afterDate.setHours(8 + Math.floor(Math.random() * 10), Math.floor(Math.random() * 60), 0, 0);
         data.push({
-            timestamp: d.toISOString(),
+            mode: 'after',
+            timestamp: afterDate.toISOString(),
             ph: (7 + Math.random() - 0.5).toFixed(2),
             do: (8 + Math.random() * 2 - 1).toFixed(2),
             ss: (20 + Math.random() * 10).toFixed(0),
@@ -949,6 +959,29 @@ function generateHistory() {
             phosphate: (2 + Math.random()).toFixed(2),
             levelIn: 80,
             levelOut: 75
+        });
+
+        const beforeDate = new Date(now);
+        beforeDate.setDate(beforeDate.getDate() - i);
+        beforeDate.setHours(7 + Math.floor(Math.random() * 10), Math.floor(Math.random() * 60), 0, 0);
+        data.push({
+            mode: 'before',
+            timestamp: beforeDate.toISOString(),
+            ph: '-',
+            do: '-',
+            ss: '-',
+            nitrite: '-',
+            nitrate: '-',
+            phosphate: '-',
+            levelIn: '-',
+            levelOut: '-',
+            postPh: (7.2 + Math.random() * 0.4 - 0.2).toFixed(2),
+            postSs: (10 + Math.random() * 6).toFixed(0),
+            postNitrite: (0.15 + Math.random() * 0.12).toFixed(3),
+            postNitrate: (7 + Math.random() * 3).toFixed(1),
+            postPhosphate: (1 + Math.random() * 0.6).toFixed(2),
+            postLevelIn: (78 + Math.random() * 2 - 1).toFixed(1),
+            postLevelOut: (72 + Math.random() * 2 - 1).toFixed(1)
         });
     }
     state.historyData = data;
@@ -1006,25 +1039,26 @@ function initHistoryChart() {
 }
 
 function refreshHistoryChart() {
-    const viewData = getHistoryViewData().slice().reverse();
+    const afterData = getHistoryViewData('after').slice().reverse();
+    const beforeData = getHistoryViewData('before').slice().reverse();
     if (state.historyChart) {
-        state.historyChart.data.labels = viewData.map(d => d.chartLabel);
-        state.historyChart.data.datasets[0].data = viewData.map(d => d.chartPh);
-        state.historyChart.data.datasets[1].data = viewData.map(d => d.chartDo);
+        state.historyChart.data.labels = afterData.map((d) => d.chartLabel);
+        state.historyChart.data.datasets[0].data = afterData.map((d) => d.chartPh);
+        state.historyChart.data.datasets[1].data = afterData.map((d) => d.chartDo);
         state.historyChart.update();
     }
     if (state.historyChartPost) {
-        state.historyChartPost.data.labels = viewData.map(d => d.chartLabel);
-        state.historyChartPost.data.datasets[0].data = viewData.map(d => d.chartPostPh);
+        state.historyChartPost.data.labels = beforeData.map((d) => d.chartLabel);
+        state.historyChartPost.data.datasets[0].data = beforeData.map((d) => d.chartPh);
         state.historyChartPost.update();
     }
 }
 
 function renderTable() {
-    const data = getHistoryViewData();
+    const afterData = getHistoryViewData('after');
     const tbody = document.getElementById('history-table-body');
     if (tbody) {
-        tbody.innerHTML = data.slice(0, 10).map(row => `
+        tbody.innerHTML = afterData.slice(0, 10).map(row => `
         <tr>
             <td>${row.label}</td>
             <td><span style="color:#38bdf8">${row.ph}</span></td>
@@ -1038,27 +1072,36 @@ function renderTable() {
     `).join('');
     }
 
+    const beforeData = getHistoryViewData('before');
     const postTbody = document.getElementById('history-table-post-body');
     if (postTbody) {
-        postTbody.innerHTML = data.slice(0, 10).map(row => `
+        postTbody.innerHTML = beforeData.slice(0, 10).map(row => `
         <tr>
             <td>${row.label}</td>
-            <td><span style="color:#f59e0b">${row.postPh}</span></td>
-            <td>${row.postSs}</td>
-            <td>${row.postNitrite}</td>
-            <td>${row.postNitrate}</td>
-            <td>${row.postPhosphate}</td>
-            <td>${row.postLevelIn} / ${row.postLevelOut}</td>
+            <td><span style="color:#f59e0b">${row.ph}</span></td>
+            <td>${row.ss}</td>
+            <td>${row.nitrite}</td>
+            <td>${row.nitrate}</td>
+            <td>${row.phosphate}</td>
+            <td>${row.levelIn} / ${row.levelOut}</td>
         </tr>
     `).join('');
     }
 }
 
 function exportCSV() {
-    const viewData = getHistoryViewData();
-    const header = ['Timestamp,pH,DO,SS,Nitrite,Nitrate,Phosphate,Level In,Level Out,Post pH,Post SS,Post Nitrite,Post Nitrate,Post Phosphate,Post Level In,Post Level Out'];
-    const rows = viewData.map(d =>
-        `"${String(d.label).replace(/"/g, '""')}",${d.ph},${d.do},${d.ss},${d.nitrite},${d.nitrate},${d.phosphate},${d.levelIn},${d.levelOut},${d.postPh},${d.postSs},${d.postNitrite},${d.postNitrate},${d.postPhosphate},${d.postLevelIn},${d.postLevelOut}`
+    const afterData = getHistoryViewData('after').map((d) => ({
+        dataset: 'after',
+        ...d
+    }));
+    const beforeData = getHistoryViewData('before').map((d) => ({
+        dataset: 'before',
+        ...d
+    }));
+    const viewData = [...afterData, ...beforeData];
+    const header = ['Dataset,Timestamp,pH,DO,SS,Nitrite,Nitrate,Phosphate,Level In,Level Out'];
+    const rows = viewData.map((d) =>
+        `${d.dataset},"${String(d.label).replace(/"/g, '""')}",${d.ph},${d.do},${d.ss},${d.nitrite},${d.nitrate},${d.phosphate},${d.levelIn},${d.levelOut}`
     );
     const csv = header.concat(rows).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -1372,32 +1415,52 @@ function addLog(message, type = 'UPDATE DEVICE') {
 function updateDashboardFromRecord(record) {
     const setText = (id, value) => {
         const element = document.getElementById(id);
-        if (element) element.textContent = value;
+        if (element && value !== undefined && value !== null) element.textContent = value;
     };
 
-    setText('val-ph', record.ph);
-    setText('val-do', record.do);
+    if (record.mode === 'before') {
+        setText('val-ph-post', record.postPh);
+        setText('val-ss-post', record.postSs);
+        setText('val-nitrite-post', record.postNitrite);
+        setText('val-nitrate-post', record.postNitrate);
+        setText('val-phosphate-post', record.postPhosphate);
+        setText('val-level-in-post', record.postLevelIn);
+        setText('val-level-out-post', record.postLevelOut);
 
-    const phNum = Number(record.ph);
-    const doNum = Number(record.do);
+        const postPhNum = Number(record.postPh);
+        if (state.gauges.phPost && Number.isFinite(postPhNum)) {
+            state.gauges.phPost.data.datasets[0].data = [postPhNum, 14 - postPhNum];
+            state.gauges.phPost.data.datasets[0].backgroundColor[0] = postPhNum < 6 || postPhNum > 8.5 ? '#f87171' : '#38bdf8';
+            state.gauges.phPost.update();
+        }
+    } else {
+        setText('val-ph', record.ph);
+        setText('val-do', record.do);
+        setText('val-ss', record.ss);
+        setText('val-nitrite', record.nitrite);
+        setText('val-nitrate', record.nitrate);
+        setText('val-phosphate', record.phosphate);
+        setText('val-level-in', record.levelIn);
+        setText('val-level-out', record.levelOut);
 
-    if (state.gauges.ph && Number.isFinite(phNum)) {
-        state.gauges.ph.data.datasets[0].data = [phNum, 14 - phNum];
-        state.gauges.ph.data.datasets[0].backgroundColor[0] = phNum < 6 || phNum > 8.5 ? '#f87171' : '#38bdf8';
-        state.gauges.ph.update();
+        const phNum = Number(record.ph);
+        const doNum = Number(record.do);
+        if (state.gauges.ph && Number.isFinite(phNum)) {
+            state.gauges.ph.data.datasets[0].data = [phNum, 14 - phNum];
+            state.gauges.ph.data.datasets[0].backgroundColor[0] = phNum < 6 || phNum > 8.5 ? '#f87171' : '#38bdf8';
+            state.gauges.ph.update();
+        }
+        if (state.gauges.do && Number.isFinite(doNum)) {
+            const maxDo = 15;
+            state.gauges.do.data.datasets[0].data = [doNum, maxDo - doNum];
+            state.gauges.do.update();
+        }
+        if (Number.isFinite(phNum) && Number.isFinite(doNum)) {
+            updateSystemStatus(phNum, doNum);
+        }
     }
 
-    if (state.gauges.do && Number.isFinite(doNum)) {
-        const maxDo = 15;
-        state.gauges.do.data.datasets[0].data = [doNum, maxDo - doNum];
-        state.gauges.do.update();
-    }
-
-    if (Number.isFinite(phNum) && Number.isFinite(doNum)) {
-        updateSystemStatus(phNum, doNum);
-    }
-
-    syncDashboardOtherParamsWithHistory(phNum);
+    syncDashboardOtherParamsWithHistory();
 }
 
 function handleManualSubmit(e) {
@@ -1422,6 +1485,7 @@ function handleManualSubmit(e) {
     }
 
     const newRecord = {
+        mode,
         timestamp: new Date().toISOString(),
         ph: '-',
         do: '-',
@@ -1469,55 +1533,8 @@ function handleManualSubmit(e) {
         }
     }
 
-    if (mode === 'before') {
-        const postToPreMap = {
-            postPh: 'ph',
-            postSs: 'ss',
-            postNitrite: 'nitrite',
-            postNitrate: 'nitrate',
-            postPhosphate: 'phosphate',
-            postLevelIn: 'levelIn',
-            postLevelOut: 'levelOut'
-        };
-        for (const [postKey, preKey] of Object.entries(postToPreMap)) {
-            if (newRecord[postKey] === '-') continue;
-            const inferInput = {
-                ph: postKey === 'postPh' ? newRecord[postKey] : undefined,
-                ss: postKey === 'postSs' ? newRecord[postKey] : undefined,
-                nitrite: postKey === 'postNitrite' ? newRecord[postKey] : undefined,
-                nitrate: postKey === 'postNitrate' ? newRecord[postKey] : undefined,
-                phosphate: postKey === 'postPhosphate' ? newRecord[postKey] : undefined,
-                levelIn: postKey === 'postLevelIn' ? newRecord[postKey] : undefined,
-                levelOut: postKey === 'postLevelOut' ? newRecord[postKey] : undefined
-            };
-            const inferred = calculatePreTreatmentFromPostMetrics(inferInput);
-            newRecord[preKey] = inferred[preKey];
-        }
-    } else {
-        const preToPostMap = {
-            ph: 'postPh',
-            ss: 'postSs',
-            nitrite: 'postNitrite',
-            nitrate: 'postNitrate',
-            phosphate: 'postPhosphate',
-            levelIn: 'postLevelIn',
-            levelOut: 'postLevelOut'
-        };
-        for (const [preKey, postKey] of Object.entries(preToPostMap)) {
-            if (newRecord[preKey] === '-') continue;
-            const post = calculatePostTreatmentMetrics({ [preKey]: newRecord[preKey] }, false);
-            const mapResult = {
-                postPh: post.ph,
-                postSs: post.ss,
-                postNitrite: post.nitrite,
-                postNitrate: post.nitrate,
-                postPhosphate: post.phosphate,
-                postLevelIn: post.levelIn,
-                postLevelOut: post.levelOut
-            };
-            newRecord[postKey] = mapResult[postKey];
-        }
-    }
+    // Keep unsaved fields as "-" and do not auto-infer values across
+    // before/after treatment datasets to prevent cross-station carryover.
 
     state.historyData = [newRecord, ...state.historyData].slice(0, 30);
     refreshHistoryView();
