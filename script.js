@@ -15,17 +15,17 @@ const state = {
     })(),
     historyData: [],
     historyChart: null,
-    // ข้อมูลอุปกรณ์
+    // เธเนเธญเธกเธนเธฅเธญเธธเธเธเธฃเธ“เน
     devices: [
         { id: 1, name: 'Main Pump House', responsible: 'Somchai Jaidee', status: 'active', loc: 'Bangkok Hospital' },
         { id: 2, name: 'Treatment Tank B', responsible: 'Somsri Rakdee', status: 'active', loc: 'Siriraj Hospital' },
         { id: 3, name: 'Outlet Sensor', responsible: 'John Doe', status: 'maintenance', loc: 'Chula Hospital' }
     ],
-    // ข้อมูลผู้ใช้งาน
+    // เธเนเธญเธกเธนเธฅเธเธนเนเนเธเนเธเธฒเธ
     users: [
-        { id: 1, name: 'System Admin', email: 'admin@hydro.com', role: 'admin' },
-        { id: 2, name: 'Somsri Operation', email: 'somsri@hydro.com', role: 'user' },
-        { id: 3, name: 'Engineer Team', email: 'eng@hydro.com', role: 'user' }
+        { id: 1, name: 'System Admin', email: 'admin@hydro.com', role: 'admin', hospital: 'เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ' },
+        { id: 2, name: 'Somsri Operation', email: 'somsri@hydro.com', role: 'user', hospital: 'เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ' },
+        { id: 3, name: 'Engineer Team', email: 'eng@hydro.com', role: 'user', hospital: 'เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ' }
     ],
     gauges: {}
 };
@@ -48,60 +48,60 @@ if (!state.logs.length) {
 
 const translations = {
     th: {
-        'login.welcome': 'ยินดีต้อนรับ',
-        'login.subtitle': 'ระบบติดตามคุณภาพน้ำเสีย<br>ต้นแบบระบบบำบัด โรงพยาบาลพระนั่งเกล้า',
-        'login.email': 'อีเมล',
-        'login.password': 'รหัสผ่าน',
-        'login.emailPlaceholder': 'กรอกอีเมล',
-        'login.passwordPlaceholder': 'กรอกรหัสผ่าน',
-        'login.button': 'เข้าสู่ระบบ',
+        'login.welcome': 'เธขเธดเธเธ”เธตเธ•เนเธญเธเธฃเธฑเธ',
+        'login.subtitle': 'เธฃเธฐเธเธเธ•เธดเธ”เธ•เธฒเธกเธเธธเธ“เธ เธฒเธเธเนเธณเน€เธชเธตเธข<br>เธ•เนเธเนเธเธเธฃเธฐเธเธเธเธณเธเธฑเธ” เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ',
+        'login.email': 'เธญเธตเน€เธกเธฅ',
+        'login.password': 'เธฃเธซเธฑเธชเธเนเธฒเธ',
+        'login.emailPlaceholder': 'เธเธฃเธญเธเธญเธตเน€เธกเธฅ',
+        'login.passwordPlaceholder': 'เธเธฃเธญเธเธฃเธซเธฑเธชเธเนเธฒเธ',
+        'login.button': 'เน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธ',
         'login.adminHint': 'By logging in, you agree to our Terms of Service.',
-        'nav.dashboard': 'แดชบอร์ด',
-        'nav.history': 'ประวัติ',
-        'nav.manual': 'บันทึกข้อมูล',
-        'nav.adminSection': 'ผู้ดูแลระบบ',
-        'nav.devices': 'จัดการอุปกรณ์',
-        'nav.users': 'จัดการผู้ใช้',
-        'nav.logs': 'บันทึกระบบ',
-        'nav.logout': 'ออกจากระบบ',
-        'dashboard.title': 'แดชบอร์ด',
-        'dashboard.subtitle': 'ติดตามคุณภาพน้ำแบบเรียลไทม์',
-        'history.title': 'วิเคราะห์ประวัติ',
-        'history.subtitle': 'แนวโน้มย้อนหลังและบันทึกข้อมูล',
-        'history.daily': 'รายวัน',
-        'history.monthly': 'รายเดือน',
-        'manual.title': 'บันทึกข้อมูลด้วยตนเอง',
-        'manual.subtitle': 'บันทึกค่าที่ตรวจวัดจริง',
-        'manual.save': 'บันทึก',
-        'manual.reset': 'รีเซ็ต',
-        'manual.saveRecord': 'บันทึกข้อมูล',
-        'manual.ph': 'ค่า pH (0-14)',
-        'manual.do': 'ออกซิเจนละลายน้ำ (mg/L)',
-        'manual.ss': 'สารแขวนลอย (mg/L)',
-        'manual.nitrite': 'ไนไตรต์ (mg/L)',
-        'manual.nitrate': 'ไนเตรต (mg/L)',
-        'manual.phosphate': 'ฟอสเฟต (mg/L)',
-        'manual.levelIn': 'ระดับน้ำเข้า (cm)',
-        'manual.levelOut': 'ระดับน้ำออก (cm)',
-        'devices.title': 'จัดการอุปกรณ์',
-        'users.title': 'จัดการผู้ใช้',
-        'logs.title': 'บันทึกระบบ',
-        'status.online': 'ระบบปกติ',
-        'status.warning': 'แจ้งเตือน',
-        'status.critical': 'วิกฤต',
-        'alert.fillAll': 'กรุณากรอกข้อมูลให้ครบ',
-        'alert.selectOne': 'กรุณาเลือกอย่างน้อย 1 พารามิเตอร์ที่จะบันทึก',
-        'alert.pleaseEnter': 'กรุณากรอก',
-        'alert.invalidValue': 'ค่าไม่ถูกต้องสำหรับ',
-        'alert.savedCount': 'บันทึกแล้ว {count} พารามิเตอร์',
-        'field.ph': 'ค่า pH',
-        'field.do': 'ออกซิเจนละลายน้ำ',
-        'field.ss': 'สารแขวนลอย',
-        'field.nitrite': 'ไนไตรต์',
-        'field.nitrate': 'ไนเตรต',
-        'field.phosphate': 'ฟอสเฟต',
-        'field.levelIn': 'ระดับน้ำเข้า',
-        'field.levelOut': 'ระดับน้ำออก'
+        'nav.dashboard': 'เนเธ”เธเธเธญเธฃเนเธ”',
+        'nav.history': 'เธเธฃเธฐเธงเธฑเธ•เธด',
+        'nav.manual': 'เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅ',
+        'nav.adminSection': 'เธเธนเนเธ”เธนเนเธฅเธฃเธฐเธเธ',
+        'nav.devices': 'เธเธฑเธ”เธเธฒเธฃเธญเธธเธเธเธฃเธ“เน',
+        'nav.users': 'เธเธฑเธ”เธเธฒเธฃเธเธนเนเนเธเน',
+        'nav.logs': 'เธเธฑเธเธ—เธถเธเธฃเธฐเธเธ',
+        'nav.logout': 'เธญเธญเธเธเธฒเธเธฃเธฐเธเธ',
+        'dashboard.title': 'เนเธ”เธเธเธญเธฃเนเธ”',
+        'dashboard.subtitle': 'เธ•เธดเธ”เธ•เธฒเธกเธเธธเธ“เธ เธฒเธเธเนเธณเนเธเธเน€เธฃเธตเธขเธฅเนเธ—เธกเน',
+        'history.title': 'เธงเธดเน€เธเธฃเธฒเธฐเธซเนเธเธฃเธฐเธงเธฑเธ•เธด',
+        'history.subtitle': 'เนเธเธงเนเธเนเธกเธขเนเธญเธเธซเธฅเธฑเธเนเธฅเธฐเธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅ',
+        'history.daily': 'เธฃเธฒเธขเธงเธฑเธ',
+        'history.monthly': 'เธฃเธฒเธขเน€เธ”เธทเธญเธ',
+        'manual.title': 'เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅเธ”เนเธงเธขเธ•เธเน€เธญเธ',
+        'manual.subtitle': 'เธเธฑเธเธ—เธถเธเธเนเธฒเธ—เธตเนเธ•เธฃเธงเธเธงเธฑเธ”เธเธฃเธดเธ',
+        'manual.save': 'เธเธฑเธเธ—เธถเธ',
+        'manual.reset': 'เธฃเธตเน€เธเนเธ•',
+        'manual.saveRecord': 'เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅ',
+        'manual.ph': 'เธเนเธฒ pH (0-14)',
+        'manual.do': 'เธญเธญเธเธเธดเน€เธเธเธฅเธฐเธฅเธฒเธขเธเนเธณ (mg/L)',
+        'manual.ss': 'เธชเธฒเธฃเนเธเธงเธเธฅเธญเธข (mg/L)',
+        'manual.nitrite': 'เนเธเนเธ•เธฃเธ•เน (mg/L)',
+        'manual.nitrate': 'เนเธเน€เธ•เธฃเธ• (mg/L)',
+        'manual.phosphate': 'เธเธญเธชเน€เธเธ• (mg/L)',
+        'manual.levelIn': 'เธฃเธฐเธ”เธฑเธเธเนเธณเน€เธเนเธฒ (cm)',
+        'manual.levelOut': 'เธฃเธฐเธ”เธฑเธเธเนเธณเธญเธญเธ (cm)',
+        'devices.title': 'เธเธฑเธ”เธเธฒเธฃเธญเธธเธเธเธฃเธ“เน',
+        'users.title': 'เธเธฑเธ”เธเธฒเธฃเธเธนเนเนเธเน',
+        'logs.title': 'เธเธฑเธเธ—เธถเธเธฃเธฐเธเธ',
+        'status.online': 'เธฃเธฐเธเธเธเธเธ•เธด',
+        'status.warning': 'เนเธเนเธเน€เธ•เธทเธญเธ',
+        'status.critical': 'เธงเธดเธเธคเธ•',
+        'alert.fillAll': 'เธเธฃเธธเธ“เธฒเธเธฃเธญเธเธเนเธญเธกเธนเธฅเนเธซเนเธเธฃเธ',
+        'alert.selectOne': 'เธเธฃเธธเธ“เธฒเน€เธฅเธทเธญเธเธญเธขเนเธฒเธเธเนเธญเธข 1 เธเธฒเธฃเธฒเธกเธดเน€เธ•เธญเธฃเนเธ—เธตเนเธเธฐเธเธฑเธเธ—เธถเธ',
+        'alert.pleaseEnter': 'เธเธฃเธธเธ“เธฒเธเธฃเธญเธ',
+        'alert.invalidValue': 'เธเนเธฒเนเธกเนเธ–เธนเธเธ•เนเธญเธเธชเธณเธซเธฃเธฑเธ',
+        'alert.savedCount': 'เธเธฑเธเธ—เธถเธเนเธฅเนเธง {count} เธเธฒเธฃเธฒเธกเธดเน€เธ•เธญเธฃเน',
+        'field.ph': 'เธเนเธฒ pH',
+        'field.do': 'เธญเธญเธเธเธดเน€เธเธเธฅเธฐเธฅเธฒเธขเธเนเธณ',
+        'field.ss': 'เธชเธฒเธฃเนเธเธงเธเธฅเธญเธข',
+        'field.nitrite': 'เนเธเนเธ•เธฃเธ•เน',
+        'field.nitrate': 'เนเธเน€เธ•เธฃเธ•',
+        'field.phosphate': 'เธเธญเธชเน€เธเธ•',
+        'field.levelIn': 'เธฃเธฐเธ”เธฑเธเธเนเธณเน€เธเนเธฒ',
+        'field.levelOut': 'เธฃเธฐเธ”เธฑเธเธเนเธณเธญเธญเธ'
     },
     en: {
         'login.welcome': 'Welcome Back',
@@ -163,38 +163,40 @@ const translations = {
 
 const extraTranslations = {
     th: {
-        'devices.add': 'เพิ่มอุปกรณ์',
-        'devices.modalAddTitle': 'เพิ่มอุปกรณ์',
-        'devices.modalEditTitle': 'แก้ไขอุปกรณ์',
-        'devices.deviceName': 'ชื่ออุปกรณ์',
-        'devices.location': 'สถานที่ติดตั้ง',
-        'devices.responsible': 'ผู้รับผิดชอบ',
-        'devices.status': 'สถานะ',
-        'devices.statusActive': 'พร้อมใช้งาน',
-        'devices.statusMaintenance': 'ซ่อมบำรุง',
-        'devices.statusOffline': 'ออฟไลน์',
-        'devices.managedBy': 'ดูแลโดย',
-        'devices.edit': 'แก้ไข',
-        'devices.deleteConfirm': 'ยืนยันการลบอุปกรณ์นี้?',
-        'users.add': 'เพิ่มผู้ใช้',
-        'users.modalAddTitle': 'เพิ่มผู้ใช้งาน',
-        'users.modalEditTitle': 'แก้ไขผู้ใช้งาน',
-        'users.name': 'ชื่อ - นามสกุล',
-        'users.email': 'อีเมล (Login ID)',
-        'users.role': 'สิทธิ์การใช้งาน',
-        'users.roleAdmin': 'แอดมิน',
-        'users.roleUser': 'ผู้ใช้',
-        'users.roleViewer': 'ผู้ชม',
-        'users.editPermission': 'แก้ไขสิทธิ์',
-        'users.deleteConfirm': 'คุณต้องการลบผู้ใช้งานนี้ออกจากระบบหรือไม่?',
-        'common.cancel': 'ยกเลิก',
-        'common.save': 'บันทึก',
-        'log.adminUpdatedDevice': 'แอดมินอัปเดตอุปกรณ์',
-        'log.adminAddedDevice': 'แอดมินเพิ่มอุปกรณ์',
-        'log.adminDeletedDevice': 'แอดมินลบอุปกรณ์',
-        'log.adminUpdatedUser': 'แอดมินอัปเดตผู้ใช้',
-        'log.adminAddedUser': 'แอดมินเพิ่มผู้ใช้',
-        'log.adminDeletedUser': 'แอดมินลบผู้ใช้'
+        'devices.add': 'เน€เธเธดเนเธกเธญเธธเธเธเธฃเธ“เน',
+        'devices.modalAddTitle': 'เน€เธเธดเนเธกเธญเธธเธเธเธฃเธ“เน',
+        'devices.modalEditTitle': 'เนเธเนเนเธเธญเธธเธเธเธฃเธ“เน',
+        'devices.deviceName': 'เธเธทเนเธญเธญเธธเธเธเธฃเธ“เน',
+        'devices.location': 'เธชเธ–เธฒเธเธ—เธตเนเธ•เธดเธ”เธ•เธฑเนเธ',
+        'devices.responsible': 'เธเธนเนเธฃเธฑเธเธเธดเธ”เธเธญเธ',
+        'devices.status': 'เธชเธ–เธฒเธเธฐ',
+        'devices.statusActive': 'เธเธฃเนเธญเธกเนเธเนเธเธฒเธ',
+        'devices.statusMaintenance': 'เธเนเธญเธกเธเธณเธฃเธธเธ',
+        'devices.statusOffline': 'เธญเธญเธเนเธฅเธเน',
+        'devices.managedBy': 'เธ”เธนเนเธฅเนเธ”เธข',
+        'devices.edit': 'เนเธเนเนเธ',
+        'devices.deleteConfirm': 'เธขเธทเธเธขเธฑเธเธเธฒเธฃเธฅเธเธญเธธเธเธเธฃเธ“เนเธเธตเน?',
+        'users.add': 'เน€เธเธดเนเธกเธเธนเนเนเธเน',
+        'users.modalAddTitle': 'เน€เธเธดเนเธกเธเธนเนเนเธเนเธเธฒเธ',
+        'users.modalEditTitle': 'เนเธเนเนเธเธชเธดเธ—เธเธดเน',
+        'users.name': 'เธเธทเนเธญ - เธเธฒเธกเธชเธเธธเธฅ',
+        'users.email': 'เธญเธตเน€เธกเธฅ (Login ID)',
+        'users.role': 'เธชเธดเธ—เธเธดเนเธเธฒเธฃเนเธเนเธเธฒเธ',
+        'users.roleAdmin': 'เนเธญเธ”เธกเธดเธ',
+        'users.roleUser': 'เธเธนเนเนเธเน',
+        'users.roleViewer': 'เธเธนเนเธเธก',
+        'users.hospital': 'เธชเธฑเธเธเธฑเธ”เนเธฃเธเธเธขเธฒเธเธฒเธฅ',
+        'users.hospitalPranangklao': '&#10003; เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ',
+        'users.editPermission': 'เนเธเนเนเธเธชเธดเธ—เธเธดเน',
+        'users.deleteConfirm': 'เธเธธเธ“เธ•เนเธญเธเธเธฒเธฃเธฅเธเธเธนเนเนเธเนเธเธฒเธเธเธตเนเธญเธญเธเธเธฒเธเธฃเธฐเธเธเธซเธฃเธทเธญเนเธกเน?',
+        'common.cancel': 'เธขเธเน€เธฅเธดเธ',
+        'common.save': 'เธเธฑเธเธ—เธถเธ',
+        'log.adminUpdatedDevice': 'เนเธญเธ”เธกเธดเธเธญเธฑเธเน€เธ”เธ•เธญเธธเธเธเธฃเธ“เน',
+        'log.adminAddedDevice': 'เนเธญเธ”เธกเธดเธเน€เธเธดเนเธกเธญเธธเธเธเธฃเธ“เน',
+        'log.adminDeletedDevice': 'เนเธญเธ”เธกเธดเธเธฅเธเธญเธธเธเธเธฃเธ“เน',
+        'log.adminUpdatedUser': 'เนเธญเธ”เธกเธดเธเธญเธฑเธเน€เธ”เธ•เธเธนเนเนเธเน',
+        'log.adminAddedUser': 'เนเธญเธ”เธกเธดเธเน€เธเธดเนเธกเธเธนเนเนเธเน',
+        'log.adminDeletedUser': 'เนเธญเธ”เธกเธดเธเธฅเธเธเธนเนเนเธเน'
     },
     en: {
         'devices.add': 'Add Device',
@@ -212,13 +214,15 @@ const extraTranslations = {
         'devices.deleteConfirm': 'Are you sure you want to delete this device?',
         'users.add': 'Add User',
         'users.modalAddTitle': 'Add User',
-        'users.modalEditTitle': 'Edit User',
+        'users.modalEditTitle': 'Edit Permission',
         'users.name': 'Full Name',
         'users.email': 'Email (Login ID)',
         'users.role': 'Role',
         'users.roleAdmin': 'Admin',
         'users.roleUser': 'User',
         'users.roleViewer': 'Viewer',
+        'users.hospital': 'Hospital Affiliation',
+        'users.hospitalPranangklao': '&#10003; Pranangklao Hospital',
         'users.editPermission': 'Edit Permission',
         'users.deleteConfirm': 'Are you sure you want to remove this user?',
         'common.cancel': 'Cancel',
@@ -231,6 +235,8 @@ const extraTranslations = {
         'log.adminDeletedUser': 'Admin deleted user'
     }
 };
+
+const DEFAULT_HOSPITAL = 'pranangklao-hospital';
 
 function t(key) {
     return (
@@ -269,13 +275,45 @@ function toggleLanguage() {
     applyLanguage();
 }
 
+function ensureUserHospitalField() {
+    const form = document.getElementById('user-form');
+    if (!form) return;
+
+    const formStack = form.querySelector('div[style*="flex-direction:column"]');
+    if (!formStack) return;
+
+    let group = document.getElementById('user-hospital-group');
+    if (!group) {
+        group = document.createElement('div');
+        group.id = 'user-hospital-group';
+        group.className = 'form-group';
+        group.innerHTML = `
+            <label data-i18n="users.hospital">เธชเธฑเธเธเธฑเธ”เนเธฃเธเธเธขเธฒเธเธฒเธฅ</label>
+            <select id="user-hospital" class="glass-input" required>
+                <option value="${DEFAULT_HOSPITAL}" data-i18n="users.hospitalPranangklao">&#10003; เนเธฃเธเธเธขเธฒเธเธฒเธฅเธเธฃเธฐเธเธฑเนเธเน€เธเธฅเนเธฒ</option>
+            </select>
+        `;
+        formStack.appendChild(group);
+    }
+
+    const hospitalSelect = group.querySelector('#user-hospital');
+    if (!hospitalSelect) return;
+    hospitalSelect.required = true;
+    hospitalSelect.value = hospitalSelect.value || DEFAULT_HOSPITAL;
+    group.style.display = '';
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    ensureUserHospitalField();
+    state.users = state.users.map((u) => ({ ...u, hospital: DEFAULT_HOSPITAL }));
     applyLanguage();
     lucide.createIcons();
     generateHistory();
     initHistoryChart();
     try { initGaugeCharts(); } catch(e) { console.error("Gauge init error:", e); }
+
+    initLiff();
 
     const hash = window.location.hash.replace("#", "");
 
@@ -761,6 +799,7 @@ function renderUsers() {
             <div class="user-role role-${u.role}">${u.role.toUpperCase()}</div>
             <h3>${u.name}</h3>
             <p style="color:var(--text-muted); font-size:14px; margin-bottom:10px; overflow-wrap:anywhere;">${u.email}</p>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:10px;">${(u.hospital || DEFAULT_HOSPITAL) === DEFAULT_HOSPITAL ? t('users.hospitalPranangklao').replace('&#10003; ', '').replace('✓ ', '') : u.hospital}</p>
             <div style="margin-top:20px; display:flex; gap:8px;">
                 <button class="btn btn-ghost" style="flex:1" onclick="openUserModal(${u.id})">${t('users.editPermission')}</button>
                 <button class="btn btn-ghost" style="color:#f87171" onclick="deleteUser(${u.id})">
@@ -773,20 +812,25 @@ function renderUsers() {
 }
 
 function openUserModal(id = null) {
+    ensureUserHospitalField();
     const modal = document.getElementById('user-modal');
     modal.classList.remove('hidden');
     
     if (id) {
         const user = state.users.find(u => u.id === id);
-        document.getElementById('user-modal-title').textContent = t('users.modalEditTitle');
+        document.getElementById('user-modal-title').textContent = t('users.editPermission');
         document.getElementById('user-id').value = user.id;
         document.getElementById('user-name').value = user.name;
         document.getElementById('user-email').value = user.email;
         document.getElementById('user-role').value = user.role;
+        const hospitalSelect = document.getElementById('user-hospital');
+        if (hospitalSelect) hospitalSelect.value = user.hospital || DEFAULT_HOSPITAL;
     } else {
         document.getElementById('user-modal-title').textContent = t('users.modalAddTitle');
         document.getElementById('user-form').reset();
         document.getElementById('user-id').value = '';
+        const hospitalSelect = document.getElementById('user-hospital');
+        if (hospitalSelect) hospitalSelect.value = DEFAULT_HOSPITAL;
     }
 }
 
@@ -796,19 +840,21 @@ function closeUserModal() {
 
 function handleUserSubmit(e) {
     e.preventDefault();
+    ensureUserHospitalField();
     const id = document.getElementById('user-id').value;
     const name = document.getElementById('user-name').value;
     const email = document.getElementById('user-email').value;
     const role = document.getElementById('user-role').value;
+    const hospital = document.getElementById('user-hospital')?.value || DEFAULT_HOSPITAL;
     
     if (id) {
         const idx = state.users.findIndex(u => u.id == id);
         if (idx !== -1) {
-            state.users[idx] = { ...state.users[idx], name, email, role };
+            state.users[idx] = { ...state.users[idx], name, email, role, hospital };
         }
     } else {
         const newId = state.users.length ? Math.max(...state.users.map(u => u.id)) + 1 : 1;
-        state.users.push({ id: newId, name, email, role });
+        state.users.push({ id: newId, name, email, role, hospital });
     }
     
     closeUserModal();
@@ -960,3 +1006,20 @@ function handleManualSubmit(e) {
     alert(t('alert.savedCount').replace('{count}', selectedFields.length));
     e.target.reset();
 }
+// ===== LIFF LOGIN =====
+async function initLiff() {
+    await liff.init({ liffId: "2009293042-5xf0uyqH" });
+
+    if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+    }
+
+    const profile = await liff.getProfile();
+    console.log("LINE User:", profile.userId);
+
+    localStorage.setItem("lineUserId", profile.userId);
+
+};
+
+
